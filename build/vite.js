@@ -3,6 +3,7 @@ import cesium from 'vite-plugin-cesium';
 import vue from '@vitejs/plugin-vue';
 import { VUE_PLUGIN_OPTIONS } from './vueOptions.js';
 import { DEFAULT_ALLOWED_HOSTS, hostCheckPlugin } from './allowedHosts.js';
+import { nativeClientCorsPlugin } from './nativeClientCors.js';
 import { embedFramingPlugin } from './embed-framing.js';
 import { panelBuildPlugin } from './panel.js';
 
@@ -183,6 +184,9 @@ export function createBrowserViteConfig({
       apiResponseHeadersPlugin(),
       // Next, so no provider route answers a Host the server does not allow.
       hostCheckPlugin(),
+      // After the Host check: a refused host gets no CORS headers. Reflects
+      // only the Capacitor and Ionic shell origins.
+      nativeClientCorsPlugin(),
       cesium(),
       // Application views are Vue single-file components.
       vue(VUE_PLUGIN_OPTIONS),

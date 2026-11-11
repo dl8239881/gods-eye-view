@@ -438,3 +438,32 @@ body.mobile-shell.ui-clean-view #command-dock,
 body.mobile-shell.cockpit-mode #command-dock {
   bottom: calc(var(--mobile-bottom-inset) + 10px);
 }
+
+/* Touch: collapse, chips and tabs are at least a fingertip. Hover cannot be
+   the only way to see that a control is live. */
+body.mobile-shell :is(
+  .panel-collapse-btn,
+  .dock-pin-btn,
+  #key-setup-chip,
+  #uplink-chip,
+  .locale-picker-button,
+  .mobile-tab,
+  .gev-action-button,
+  .style-btn
+) {
+  min-height: 44px;
+}
+
+body.mobile-shell .panel-collapse-btn,
+body.mobile-shell .dock-pin-btn {
+  min-width: 44px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .style-btn:active,
+  .panel-collapse-btn:active,
+  .gev-action-button:active:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+}

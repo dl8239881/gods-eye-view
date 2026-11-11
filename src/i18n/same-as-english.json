@@ -47,7 +47,8 @@
     "▲ {frp} MW",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "de": [
     "1090 MHz",
@@ -244,7 +245,8 @@
     "▲ {frp} MW",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "es": [
     "1 min/s",
@@ -404,7 +406,8 @@
     "iNaturalist",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "fr": [
     "1 min/s",
@@ -619,7 +622,8 @@
     "≥ {value} MW",
     "▲ {frp} MW",
     "SATELLITE",
-    "Photo © {photographer}"
+    "Photo © {photographer}",
+    "https://your-server.example"
   ],
   "it": [
     "1 min/s",
@@ -822,7 +826,8 @@
     "SATELLITE",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "ja": [
     "1090 MHz",
@@ -888,7 +893,8 @@
     "▲ {frp} MW",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "pt": [
     "1 min/s",
@@ -1049,7 +1055,8 @@
     "iNaturalist",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "ru": [
     "1900–1945",
@@ -1085,7 +1092,8 @@
     "{division}, {country}",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "uk": [
     "1900–1945",
@@ -1116,7 +1124,8 @@
     "{division}, {country}",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ],
   "zh-CN": [
     "1090 MHz",
@@ -1187,7 +1196,8 @@
     "CC BY 4.0",
     "acartia.io ↗",
     "iNaturalist ↗",
-    "iNaturalist"
+    "iNaturalist",
+    "https://your-server.example"
   ],
   "zh-Hant": [
     "1090 MHz",
@@ -1258,7 +1268,8 @@
     "CC BY 4.0",
     "acartia.io ↗",
     "iNaturalist ↗",
-    "iNaturalist"
+    "iNaturalist",
+    "https://your-server.example"
   ],
   "he": [
     "{speed} kn",
@@ -1358,6 +1369,7 @@
     "Ironbow",
     "ICAO: {id}",
     "MMSI: {id}",
-    "NORAD: {id}"
+    "NORAD: {id}",
+    "https://your-server.example"
   ]
 }

@@ -3626,5 +3626,14 @@
   "ICAO: {id}": "ICAO: {id}",
   "NORAD: {id}": "NORAD: {id}",
   "MMSI: {id}": "MMSI: {id}",
-  "Vessel UUID: {id}": "UUID судна: {id}"
+  "Vessel UUID: {id}": "UUID судна: {id}",
+  "UPLINK": "КАНАЛ",
+  "Hosted server": "Внешний сервер",
+  "Point this app at a hosted God's Eye View server. Provider keys stay on that server.": "Направьте это приложение на размещённый сервер God's Eye View. Ключи провайдеров остаются на этом сервере.",
+  "This page's own server": "Сервер этой страницы",
+  "Use an http or https URL, without a username or password.": "Укажите адрес http или https без имени пользователя и пароля.",
+  "Uplink saved. Reloading.": "Канал сохранён. Перезагрузка.",
+  "SAVE UPLINK": "СОХРАНИТЬ КАНАЛ",
+  "CLEAR UPLINK": "СБРОСИТЬ КАНАЛ",
+  "https://your-server.example": "https://your-server.example"
 }

@@ -3545,5 +3545,14 @@
   "ICAO: {id}": "ICAO: {id}",
   "NORAD: {id}": "NORAD: {id}",
   "MMSI: {id}": "MMSI: {id}",
-  "Vessel UUID: {id}": "UUID של כלי השיט: {id}"
+  "Vessel UUID: {id}": "UUID של כלי השיט: {id}",
+  "UPLINK": "קישור",
+  "Hosted server": "שרת מארח",
+  "Point this app at a hosted God's Eye View server. Provider keys stay on that server.": "הפנו את היישום לשרת God's Eye View מתארח. מפתחות הספקים נשארים בשרת הזה.",
+  "This page's own server": "השרת של הדף הזה",
+  "Use an http or https URL, without a username or password.": "השתמשו בכתובת http או https בלי שם משתמש או סיסמה.",
+  "Uplink saved. Reloading.": "הקישור נשמר. טוען מחדש.",
+  "SAVE UPLINK": "שמירת קישור",
+  "CLEAR UPLINK": "ניקוי קישור",
+  "https://your-server.example": "https://your-server.example"
 }

@@ -3383,5 +3383,14 @@
   "ICAO: {id}": "ICAO: {id}",
   "NORAD: {id}": "NORAD: {id}",
   "MMSI: {id}": "MMSI: {id}",
-  "Vessel UUID: {id}": "船舶UUID: {id}"
+  "Vessel UUID: {id}": "船舶UUID: {id}",
+  "UPLINK": "アップリンク",
+  "Hosted server": "ホストされたサーバー",
+  "Point this app at a hosted God's Eye View server. Provider keys stay on that server.": "このアプリをホストされた God's Eye View サーバーに向けます。プロバイダーの鍵はそのサーバーに残ります。",
+  "This page's own server": "このページ自身のサーバー",
+  "Use an http or https URL, without a username or password.": "ユーザー名やパスワードのない http または https の URL を使ってください。",
+  "Uplink saved. Reloading.": "アップリンクを保存しました。再読み込みします。",
+  "SAVE UPLINK": "アップリンクを保存",
+  "CLEAR UPLINK": "アップリンクを消去",
+  "https://your-server.example": "https://your-server.example"
 }

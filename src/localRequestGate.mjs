@@ -75,22 +75,67 @@ function requestAuthority(hostHeader, protocol) {
 }
 
 /**
+ * Capacitor and Ionic shell origins. A normal browser page cannot set
+ * `Origin` to these schemes; WKWebView sends them for the installed app.
+ * Non-special schemes have an opaque origin in the URL standard (`"null"`),
+ * so this compares protocol and host rather than `URL#origin`.
+ * @param {string|undefined|null} origin
+ * @returns {boolean}
+ */
+export function isNativeAppOrigin(origin) {
+  if (origin == null || origin === '' || origin === 'null') return false;
+  let url;
+  try {
+    url = new URL(String(origin));
+  } catch {
+    return false;
+  }
+  if (url.username || url.password || url.search || url.hash) return false;
+  if (url.pathname !== '' && url.pathname !== '/') return false;
+  const protocol = url.protocol.toLowerCase();
+  const host = url.hostname.toLowerCase();
+  return (
+    (protocol === 'capacitor:' || protocol === 'ionic:') && host === 'localhost'
+  );
+}
+
+/**
+ * Whether `GEV_TRUST_NATIVE_CLIENTS` opts a hosted server into admitting the
+ * installed app through a reverse proxy. The value is read from the supplied
+ * environment; the gate itself stays free of globals.
+ * @param {NodeJS.ProcessEnv} [env]
+ * @returns {boolean}
+ */
+export function trustNativeClientsFromEnv(env = {}) {
+  return ['1', 'true', 'yes', 'on'].includes(
+    String(env.GEV_TRUST_NATIVE_CLIENTS ?? '')
+      .trim()
+      .toLowerCase(),
+  );
+}
+
+/**
  * Decide whether a request to a cost-bearing/log endpoint is same-site enough
  * to admit. Pure: no I/O, no globals.
  *
  * Policy, in order:
- *  1. any reverse-proxy / CDN signal header present (PROXY_SIGNALS) → 403;
+ *  1. any reverse-proxy / CDN signal header present (PROXY_SIGNALS) → 403,
+ *     unless `trustNativeClients` is set and `Origin` is the Capacitor or
+ *     Ionic shell (`capacitor://localhost` / `ionic://localhost`);
  *  2. `Sec-Fetch-Site` present and not `same-origin` / `none` → 403 (this is
  *     what blocks `<img src=...>` and cross-site navigation, which carry no
- *     Origin but do carry `Sec-Fetch-Site: cross-site`);
+ *     Origin but do carry `Sec-Fetch-Site: cross-site`), unless the Origin is
+ *     that native shell — WKWebView marks those fetches cross-site;
  *  3. `Origin` present must exactly equal the request's own authority computed
  *     from protocol + Host — the same exact-origin comparison the credential
  *     gate uses (no userinfo, no path/search/hash). The literal string `null`
- *     is an opaque origin (sandboxed iframe / `data:` URL) and is refused;
+ *     is an opaque origin (sandboxed iframe / `data:` URL) and is refused.
+ *     A native shell origin is the installed app, not the server's host, so
+ *     it is admitted here instead of compared to that authority;
  *  4. otherwise ok. Non-browser loopback tools and the LAN opt-in (which may
  *     carry neither `Origin` nor `Sec-Fetch-Site`) pass here.
  *
- * @param {{hostHeader?: string, protocol?: string, origin?: string, secFetchSite?: string, proxyHeaders?: Record<string,string>}} req
+ * @param {{hostHeader?: string, protocol?: string, origin?: string, secFetchSite?: string, proxyHeaders?: Record<string,string>, trustNativeClients?: boolean}} req
  * @returns {{ok: true} | {ok: false, status: 403, error: string}}
  */
 export function admitSameSiteRequest({
@@ -99,10 +144,13 @@ export function admitSameSiteRequest({
   origin,
   secFetchSite,
   proxyHeaders = {},
+  trustNativeClients = false,
 } = {}) {
+  const native = isNativeAppOrigin(origin);
   // (1) A request carrying reverse-proxy / CDN forwarding headers did not
-  // originate on this machine, whatever its socket says.
-  if (hasProxySignals(proxyHeaders)) {
+  // originate on this machine, whatever its socket says. A hosted deploy
+  // (Render adds these headers) can opt in for the installed app only.
+  if (hasProxySignals(proxyHeaders) && !(trustNativeClients && native)) {
     return {
       ok: false,
       status: 403,
@@ -111,11 +159,11 @@ export function admitSameSiteRequest({
   }
   // (2) The browser tells us when a request is cross-site. `none` is a typed
   // URL / bookmark; `same-origin` is the app itself. Anything else (cross-site,
-  // same-site but cross-origin) is refused.
+  // same-site but cross-origin) is refused. The native shell is the app.
   const site = String(secFetchSite || '')
     .trim()
     .toLowerCase();
-  if (site !== '' && site !== 'same-origin' && site !== 'none') {
+  if (site !== '' && site !== 'same-origin' && site !== 'none' && !native) {
     return {
       ok: false,
       status: 403,
@@ -123,7 +171,7 @@ export function admitSameSiteRequest({
     };
   }
   // (3) If Origin is present it must exactly equal the request's own authority.
-  if (origin !== undefined && origin !== null && origin !== '') {
+  if (!native && origin !== undefined && origin !== null && origin !== '') {
     if (origin === 'null') {
       return {
         ok: false,

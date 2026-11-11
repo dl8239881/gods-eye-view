@@ -3383,5 +3383,14 @@
   "ICAO: {id}": "ICAO：{id}",
   "NORAD: {id}": "NORAD：{id}",
   "MMSI: {id}": "MMSI：{id}",
-  "Vessel UUID: {id}": "船舶 UUID：{id}"
+  "Vessel UUID: {id}": "船舶 UUID：{id}",
+  "UPLINK": "上行鏈路",
+  "Hosted server": "託管伺服器",
+  "Point this app at a hosted God's Eye View server. Provider keys stay on that server.": "將此應用指向託管的 God's Eye View 伺服器。提供者金鑰留在該伺服器上。",
+  "This page's own server": "本頁自己的伺服器",
+  "Use an http or https URL, without a username or password.": "請使用不含使用者名稱或密碼的 http 或 https 網址。",
+  "Uplink saved. Reloading.": "上行鏈路已儲存。正在重新載入。",
+  "SAVE UPLINK": "儲存上行鏈路",
+  "CLEAR UPLINK": "清除上行鏈路",
+  "https://your-server.example": "https://your-server.example"
 }

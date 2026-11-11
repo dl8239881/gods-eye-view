@@ -1,0 +1,84 @@
+name: iOS IPA
+
+# Unsigned IPA for Sideloadly. The archive is not signed and has no
+# provisioning profile; Sideloadly re-signs it with the user's Apple ID.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/ios-capacitor-ipa-482f
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ipa:
+    name: Unsigned IPA
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: "1"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.22.2
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build the client
+        env:
+          # Repo variable, then Actions secret. Both empty means same-origin
+          # until the in-app UPLINK control is set.
+          VITE_API_BASE: ${{ vars.VITE_API_BASE || secrets.VITE_API_BASE }}
+        run: npm run build
+
+      - name: Sync the iOS shell
+        run: npx cap sync ios
+
+      - name: Archive without signing
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$PWD/build/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            DEVELOPMENT_TEAM="" \
+            archive
+
+      - name: Package GodsEyeView.ipa
+        run: |
+          set -euo pipefail
+          app=$(find build/App.xcarchive/Products/Applications -name '*.app' -type d -maxdepth 1 | head -n 1)
+          test -n "$app"
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "$app" Payload/App.app
+          rm -f GodsEyeView.ipa
+          zip -r -y GodsEyeView.ipa Payload
+          unzip -l GodsEyeView.ipa | head -n 20
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: GodsEyeView.ipa
+          path: GodsEyeView.ipa
+          if-no-files-found: error
+          retention-days: 14

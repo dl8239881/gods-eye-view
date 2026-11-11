@@ -3545,5 +3545,14 @@
   "ICAO: {id}": "ICAO: {id}",
   "NORAD: {id}": "NORAD: {id}",
   "MMSI: {id}": "MMSI: {id}",
-  "Vessel UUID: {id}": "UUID da embarcação: {id}"
+  "Vessel UUID: {id}": "UUID da embarcação: {id}",
+  "UPLINK": "LIGAÇÃO",
+  "Hosted server": "Servidor hospedado",
+  "Point this app at a hosted God's Eye View server. Provider keys stay on that server.": "Aponte este app para um servidor God's Eye View hospedado. As chaves dos provedores ficam nesse servidor.",
+  "This page's own server": "O servidor desta página",
+  "Use an http or https URL, without a username or password.": "Use um URL http ou https, sem nome de usuário nem senha.",
+  "Uplink saved. Reloading.": "Ligação salva. Recarregando.",
+  "SAVE UPLINK": "SALVAR LIGAÇÃO",
+  "CLEAR UPLINK": "LIMPAR LIGAÇÃO",
+  "https://your-server.example": "https://your-server.example"
 }
