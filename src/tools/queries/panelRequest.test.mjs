@@ -16,7 +16,7 @@ const gunzip = async (bytes) =>
     ).arrayBuffer(),
   );
 
-function catalogWith(handler) {
+function catalogWith(handler, baseUrl = 'http://localhost:4173/') {
   const requests = [];
   const fetchImpl = async (path, init) => {
     requests.push({ path, ...init });
@@ -28,7 +28,7 @@ function catalogWith(handler) {
       tools: coreTools,
       services: {
         app: {
-          baseUrl: 'http://localhost:4173/',
+          baseUrl,
           fetch: fetchImpl,
           panelKey: KEY,
         },
@@ -90,6 +90,24 @@ test('a large response comes in parts that join to the original', async () => {
   }
   assert.equal(parts.length, 3);
   assert.deepEqual(new Uint8Array(Buffer.concat(parts)), bytes);
+});
+
+test('a capacitor page refuses another host even though both origins are opaque', async () => {
+  const { catalog, requests } = catalogWith(
+    () => new Response('ok'),
+    'capacitor://localhost/',
+  );
+  const { data } = await catalog.call('panel_request', {
+    key: KEY,
+    path: '/scene-assets/pack.json',
+  });
+  assert.equal(data.status, 200);
+  assert.equal(requests[0].path, '/scene-assets/pack.json');
+  await assert.rejects(
+    catalog.call('panel_request', { key: KEY, path: '//evil.example/x' }),
+    (error) => error.code === 'invalid_arguments',
+  );
+  assert.equal(requests.length, 1);
 });
 
 test('a request body and method pass through; settings and other sites do not', async () => {

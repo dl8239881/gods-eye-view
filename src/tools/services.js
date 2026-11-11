@@ -55,7 +55,12 @@ export function createToolServices({ fetchImpl, appUrl, panelKey }) {
     military: createMilitarySource({ fetchImpl }),
     vessels: createVesselSource({
       fetchImpl,
-      origin: () => new URL(appUrl).origin,
+      // A capacitor:// or ionic:// page has an opaque origin ("null"), which
+      // cannot resolve a relative /api path. The page URL can.
+      origin: () => {
+        const page = new URL(appUrl);
+        return page.origin === 'null' ? page.href : page.origin;
+      },
     }),
     satellites: createSatelliteSource({ fetchImpl }),
     cctv: createCctvSource({ fetchImpl }),
