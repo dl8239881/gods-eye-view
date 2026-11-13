@@ -13,7 +13,23 @@ function safeNumber(value, fallback = NaN) {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 }
+function withApiBase(url) {
+  if (!url.startsWith('/')) return url;
+  const read = globalThis.__GEV_API_BASE__;
+  const base = typeof read === 'function' ? read() : '';
+  return base ? `${base}${url}` : url;
+}
+
 function frameUrlFor(camera, refreshMs = ACTIVE_FRAME_REFRESH_MS) {
+  const direct = String(camera?.directImageUrl || '').trim();
+  if (/^https:\/\//.test(direct)) {
+    const tick = Math.floor(
+      Date.now() /
+        Math.max(1000, safeNumber(refreshMs, ACTIVE_FRAME_REFRESH_MS)),
+    );
+    const sep = direct.includes('?') ? '&' : '?';
+    return `${direct}${sep}gevts=${tick}`;
+  }
   const cadenceMs = Math.max(
     1000,
     safeNumber(refreshMs, ACTIVE_FRAME_REFRESH_MS),
@@ -29,10 +45,14 @@ function frameUrlFor(camera, refreshMs = ACTIVE_FRAME_REFRESH_MS) {
     pitch: String(Math.round(camera.pitchDeg || -10)),
     ts: String(tick),
   });
-  return `${FRAME_ENDPOINT}/${encodeURIComponent(camera.id)}?${params.toString()}`;
+  return withApiBase(
+    `${FRAME_ENDPOINT}/${encodeURIComponent(camera.id)}?${params.toString()}`,
+  );
 }
 function mediaUrlFor(camera) {
-  return `${MEDIA_ENDPOINT}/${encodeURIComponent(camera.id)}?ts=${Math.floor(Date.now() / 15000)}`;
+  return withApiBase(
+    `${MEDIA_ENDPOINT}/${encodeURIComponent(camera.id)}?ts=${Math.floor(Date.now() / 15000)}`,
+  );
 }
 /** Supply catalog/health records and the existing registered camera URL families. */
 export function createCctvSource({
@@ -42,8 +62,15 @@ export function createCctvSource({
     signal?.throwIfAborted();
     const response = await fetchImpl(path, { cache: 'no-store', signal });
     if (!response.ok) throw new Error('Camera source HTTP ' + response.status);
-    const payload = await response.json();
+    let payload;
+    try {
+      payload = await response.json();
+    } catch {
+      throw new Error('Needs server, set UPLINK');
+    }
     signal?.throwIfAborted();
+    if (payload?.code === 'NEEDS_SERVER')
+      throw new Error('Needs server, set UPLINK');
     if (!Array.isArray(payload?.[key]))
       throw new Error('Malformed camera ' + key + ' snapshot');
     return payload;

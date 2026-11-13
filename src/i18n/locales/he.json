@@ -3554,5 +3554,6 @@
   "Uplink saved. Reloading.": "הקישור נשמר. טוען מחדש.",
   "SAVE UPLINK": "שמירת קישור",
   "CLEAR UPLINK": "ניקוי קישור",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "נדרש שרת, הגדירו UPLINK"
 }

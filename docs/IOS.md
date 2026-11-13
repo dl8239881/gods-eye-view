@@ -1,10 +1,11 @@
 # God's Eye View on iOS
 
 The iPhone app is the existing web client inside a Capacitor shell. It boots
-from the files in the IPA: bundled assets load from `capacitor://localhost`.
-WKWebView cannot register `https` as that scheme. iOS cannot run the Node
-server, so live `/api` data needs a copy of this repo that you host. Provider
-keys stay on that server. The `.ipa` from GitHub Actions is unsigned;
+from the files in the IPA, with no server required. Bundled assets load from
+`capacitor://localhost` (WKWebView cannot register `https` as that scheme).
+Keyless public feeds are read on the device. A hosted server is optional:
+set `VITE_API_BASE` or UPLINK when you want the full proxy, including keyed
+feeds. The `.ipa` from GitHub Actions is unsigned;
 [Sideloadly](https://sideloadly.io/) re-signs it with your Apple ID. A paid
 Apple Developer team and a provisioning profile are not required.
 

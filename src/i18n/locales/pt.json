@@ -3554,5 +3554,6 @@
   "Uplink saved. Reloading.": "Ligação salva. Recarregando.",
   "SAVE UPLINK": "SALVAR LIGAÇÃO",
   "CLEAR UPLINK": "LIMPAR LIGAÇÃO",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "Precisa de um servidor, defina UPLINK"
 }

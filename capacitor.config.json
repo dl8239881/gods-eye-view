@@ -15,5 +15,10 @@
     "allowsLinkPreview": false,
     "preferredContentMode": "mobile",
     "zoomEnabled": false
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
   }
 }

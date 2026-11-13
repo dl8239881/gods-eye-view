@@ -434,6 +434,20 @@ body.mobile-shell.cockpit-mode #mobile-tab-bar {
   display: none;
 }
 
+/* The page itself does not zoom. The globe canvas keeps its own pinch. */
+html[data-native-app] body {
+  touch-action: manipulation;
+}
+
+html[data-native-app] #cesiumContainer,
+html[data-native-app] #cesiumContainer canvas {
+  touch-action: none;
+}
+
+html[data-native-app] :is(input, select, textarea) {
+  font-size: 16px;
+}
+
 body.mobile-shell.ui-clean-view #command-dock,
 body.mobile-shell.cockpit-mode #command-dock {
   bottom: calc(var(--mobile-bottom-inset) + 10px);

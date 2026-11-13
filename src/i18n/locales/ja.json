@@ -3392,5 +3392,6 @@
   "Uplink saved. Reloading.": "アップリンクを保存しました。再読み込みします。",
   "SAVE UPLINK": "アップリンクを保存",
   "CLEAR UPLINK": "アップリンクを消去",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "サーバーが必要です。UPLINK を設定してください"
 }

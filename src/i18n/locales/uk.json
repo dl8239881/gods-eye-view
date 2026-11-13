@@ -3635,5 +3635,6 @@
   "Uplink saved. Reloading.": "Канал збережено. Перезавантаження.",
   "SAVE UPLINK": "ЗБЕРЕГТИ КАНАЛ",
   "CLEAR UPLINK": "СКИНУТИ КАНАЛ",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "Потрібен сервер, задайте UPLINK"
 }

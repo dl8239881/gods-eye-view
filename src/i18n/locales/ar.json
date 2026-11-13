@@ -3797,5 +3797,6 @@
   "Uplink saved. Reloading.": "حُفظت الوصلة. تجري إعادة التحميل.",
   "SAVE UPLINK": "حفظ الوصلة",
   "CLEAR UPLINK": "مسح الوصلة",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "يحتاج خادماً، اضبط UPLINK"
 }

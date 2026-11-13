@@ -3554,5 +3554,6 @@
   "Uplink saved. Reloading.": "Liaison enregistrée. Rechargement.",
   "SAVE UPLINK": "ENREGISTRER LA LIAISON",
   "CLEAR UPLINK": "EFFACER LA LIAISON",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "Serveur requis, réglez UPLINK"
 }

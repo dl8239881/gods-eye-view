@@ -3554,5 +3554,6 @@
   "Uplink saved. Reloading.": "Enlace guardado. Recargando.",
   "SAVE UPLINK": "GUARDAR ENLACE",
   "CLEAR UPLINK": "BORRAR ENLACE",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "Necesita un servidor, configura UPLINK"
 }

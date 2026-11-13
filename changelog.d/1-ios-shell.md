@@ -5,6 +5,10 @@
   `GEV_TRUST_NATIVE_CLIENTS=1` admits that app through a reverse proxy.
   Phone-width and coarse-pointer landscape screens use the bottom-sheet
   shell. Bundled scene assets load from `capacitor://localhost` and
-  `ionic://localhost`, so the app boots with no server configured.
+  `ionic://localhost`, so the app boots with no server configured. With no
+  uplink, the installed app reads CelesTrak, adsb.lol, OpenSky, Launch
+  Library and the keyless NSW, TfL and Caltrans camera catalogs directly.
+  Routes that need a server answer `Needs server, set UPLINK` instead of
+  the page HTML.
   `render.yaml` is a free-tier blueprint; install steps are in
   `docs/IOS.md` (#1).

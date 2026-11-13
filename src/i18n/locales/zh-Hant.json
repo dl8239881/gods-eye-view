@@ -3392,5 +3392,6 @@
   "Uplink saved. Reloading.": "上行鏈路已儲存。正在重新載入。",
   "SAVE UPLINK": "儲存上行鏈路",
   "CLEAR UPLINK": "清除上行鏈路",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "需要伺服器，請設定 UPLINK"
 }

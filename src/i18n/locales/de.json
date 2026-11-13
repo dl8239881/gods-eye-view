@@ -3473,5 +3473,6 @@
   "Uplink saved. Reloading.": "Verbindung gespeichert. Wird neu geladen.",
   "SAVE UPLINK": "VERBINDUNG SPEICHERN",
   "CLEAR UPLINK": "VERBINDUNG LÖSCHEN",
-  "https://your-server.example": "https://your-server.example"
+  "https://your-server.example": "https://your-server.example",
+  "Needs server, set UPLINK": "Braucht einen Server, UPLINK setzen"
 }
