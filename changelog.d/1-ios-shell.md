@@ -9,6 +9,10 @@
   uplink, the installed app reads CelesTrak, adsb.lol, OpenSky, Launch
   Library and the keyless NSW, TfL and Caltrans camera catalogs directly.
   Routes that need a server answer `Needs server, set UPLINK` instead of
-  the page HTML.
+  the page HTML. On the phone, submarine cables draw as thinned polylines
+  and a capped set of landing points, not a ground-clamped entity per
+  segment, and local infrastructure GeoJSON skips ground clamping and
+  stays under a feature budget. A bad cable file sets the layer
+  unavailable instead of throwing a parse error.
   `render.yaml` is a free-tier blueprint; install steps are in
   `docs/IOS.md` (#1).
