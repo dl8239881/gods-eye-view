@@ -29,12 +29,72 @@ export function createRendering({ state }) {
    * network round trip or a re-parse.
    */
 
+  function releaseLightweight(viewer) {
+    const primitives = viewer?.scene?.primitives;
+    for (const key of ['_cablePolylines', '_landingPoints']) {
+      const collection = state[key];
+      state[key] = null;
+      if (!collection) continue;
+      try {
+        primitives?.remove(collection);
+      } catch {
+        /* scene gone */
+      }
+    }
+  }
+
+  /**
+   * One polyline collection and one point collection. No per-feature labels
+   * or ground clamping: those are what exhaust the phone WebView.
+   */
+  function addLightweightGeometry(viewer, lines, landingFeatures) {
+    releaseLightweight(viewer);
+    const polylines = new Cesium.PolylineCollection();
+    const cableColor = state.cableColor.withAlpha(0.9);
+    for (const line of lines) {
+      const positions = [];
+      for (const pair of line) {
+        if (!Array.isArray(pair) || pair.length < 2) continue;
+        const lon = Number(pair[0]);
+        const lat = Number(pair[1]);
+        if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+        positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, 0));
+      }
+      if (positions.length < 2) continue;
+      polylines.add({
+        positions,
+        width: 2,
+        material: Cesium.Material.fromType('Color', { color: cableColor }),
+      });
+    }
+    const points = new Cesium.PointPrimitiveCollection();
+    const landingColor = state.landingColor.withAlpha(0.9);
+    const step = Math.max(1, Math.ceil((landingFeatures?.length || 0) / 400));
+    for (let i = 0; i < (landingFeatures?.length || 0); i += step) {
+      const coords = landingFeatures[i]?.geometry?.coordinates;
+      if (!Array.isArray(coords) || coords.length < 2) continue;
+      const lon = Number(coords[0]);
+      const lat = Number(coords[1]);
+      if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+      points.add({
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, 0),
+        pixelSize: 4,
+        color: landingColor,
+      });
+    }
+    viewer.scene.primitives.add(polylines);
+    viewer.scene.primitives.add(points);
+    state._cablePolylines = polylines;
+    state._landingPoints = points;
+  }
+
   function releaseDataSources(viewer) {
     const sources = [
       state._cableDataSource,
       state._landingDataSource,
       state._referenceDataSource,
     ];
+    releaseLightweight(viewer);
     state._cableDataSource = null;
     state._landingDataSource = null;
     state._referenceDataSource = null;
@@ -59,6 +119,8 @@ export function createRendering({ state }) {
   }
 
   function updateVisibility() {
+    if (state._cablePolylines) state._cablePolylines.show = state._enabled;
+    if (state._landingPoints) state._landingPoints.show = state._enabled;
     if (state._cableDataSource) state._cableDataSource.show = state._enabled;
     if (state._landingDataSource)
       state._landingDataSource.show = state._enabled;
@@ -269,6 +331,7 @@ export function createRendering({ state }) {
     applyCableClassification,
     styleLandingEntity,
     addReferenceStem,
+    addLightweightGeometry,
     updateReferenceVisibility,
   };
 }

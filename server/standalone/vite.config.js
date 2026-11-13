@@ -39,7 +39,11 @@ export function standaloneConfig(
     mapillaryToken: process.env.MAPILLARY_CLIENT_TOKEN,
     host: process.env.HOST,
     port: process.env.PORT,
-    allowedHosts: resolveAllowedHosts(process.env.GEV_ALLOWED_HOSTS),
+    allowedHosts: resolveAllowedHosts(
+      [process.env.GEV_ALLOWED_HOSTS, process.env.RENDER_EXTERNAL_HOSTNAME]
+        .filter(Boolean)
+        .join(','),
+    ),
     command,
   });
 }

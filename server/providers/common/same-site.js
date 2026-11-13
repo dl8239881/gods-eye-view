@@ -1,4 +1,7 @@
-import { admitSameSiteRequest } from '../../../src/localRequestGate.mjs';
+import {
+  admitSameSiteRequest,
+  trustNativeClientsFromEnv,
+} from '../../../src/localRequestGate.mjs';
 
 /**
  * Cross-site request gate for cost-bearing and log endpoints. Feeds the
@@ -19,6 +22,7 @@ export function admitSameSite(req, res) {
     origin: req.headers?.origin,
     secFetchSite: req.headers?.['sec-fetch-site'],
     proxyHeaders: req.headers || {},
+    trustNativeClients: trustNativeClientsFromEnv(process.env),
   });
   if (verdict.ok) return false;
   res.statusCode = verdict.status;
@@ -78,6 +82,7 @@ export function admitSameSiteKeyless(req, res) {
     origin: req.headers?.origin,
     secFetchSite: req.headers?.['sec-fetch-site'],
     proxyHeaders: {},
+    trustNativeClients: trustNativeClientsFromEnv(process.env),
   });
   if (verdict.ok) return false;
   res.statusCode = verdict.status;

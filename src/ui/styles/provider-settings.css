@@ -6,7 +6,8 @@
 
 /* The chip sits in the bottom-right corner row (#corner-actions,
    locale-picker.css), which owns the position. */
-#key-setup-chip {
+#key-setup-chip,
+#uplink-chip {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -35,7 +36,9 @@
 }
 
 #key-setup-chip:hover,
-#key-setup-chip:focus-visible {
+#uplink-chip:hover,
+#key-setup-chip:focus-visible,
+#uplink-chip:focus-visible {
   background: linear-gradient(
     145deg,
     rgba(14, 38, 51, 0.95),
@@ -46,12 +49,14 @@
   transform: translateY(-1px);
 }
 
-#key-setup-chip .material-symbols-outlined {
+#key-setup-chip .material-symbols-outlined,
+#uplink-chip .material-symbols-outlined {
   color: #55dff5;
   font-size: 0.95rem;
 }
 
-#key-setup-chip[hidden] {
+#key-setup-chip[hidden],
+#uplink-chip[hidden] {
   display: none;
 }
 
@@ -410,4 +415,93 @@ body.scene-playback-mode #key-setup {
   color: rgba(255, 190, 170, 1);
   border-color: rgba(255, 170, 150, 0.65);
   outline: none;
+}
+
+/* UPLINK — hosted API base. Same glass card as POWER UP, shorter. */
+.key-setup-uplink {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.key-setup-uplink p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+#uplink {
+  position: fixed;
+  z-index: 200;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  left: 50%;
+  width: min(28rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem - env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.15rem;
+  overflow: auto;
+  color: var(--text-primary);
+  background:
+    linear-gradient(145deg, rgba(10, 27, 37, 0.97), rgba(7, 13, 22, 0.95)),
+    rgba(7, 17, 25, 0.96);
+  border: 1px solid rgba(54, 220, 255, 0.42);
+  border-radius: 0.65rem;
+  box-shadow:
+    0 1.4rem 4.5rem rgba(0, 0, 0, 0.72),
+    0 0 2.5rem rgba(0, 212, 255, 0.09);
+  transform: translateX(-50%);
+}
+
+#uplink h2 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.14rem;
+}
+
+#uplink p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.uplink-field {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08rem;
+}
+
+.uplink-field input {
+  min-height: 44px;
+  padding: 0.55rem 0.7rem;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(54, 220, 255, 0.35);
+  border-radius: 0.4rem;
+}
+
+#uplink .key-setup-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+html[data-native-app] {
+  background: #0a0a0f;
+}
+
+html[data-native-app] body {
+  overscroll-behavior: none;
+  background: #0a0a0f;
 }

@@ -214,7 +214,15 @@ function checkedPath(path, baseUrl) {
   } catch {
     throw new ToolError('invalid_arguments', 'path is not a valid path');
   }
-  if (url.origin !== base.origin)
+  // Custom schemes such as capacitor:// have an opaque origin ("null"), so
+  // two different hosts compare equal. Scheme and host still name the server.
+  const sameServer =
+    (url.origin !== 'null' && url.origin === base.origin) ||
+    (url.origin === 'null' &&
+      base.origin === 'null' &&
+      url.protocol === base.protocol &&
+      url.host === base.host);
+  if (!sameServer)
     throw new ToolError(
       'invalid_arguments',
       "path must stay on the app's server",

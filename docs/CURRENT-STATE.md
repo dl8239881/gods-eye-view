@@ -1,5 +1,15 @@
 # God's Eye View Current State
 
+The iOS shell is a Capacitor app (`com.dylanlang.godseyeview`) that loads the
+built client. `/api` calls stay on this page's origin unless `VITE_API_BASE` or
+the UPLINK control names a hosted server. The server allows
+`capacitor://localhost` and `ionic://localhost` through CORS, and admits those
+origins in the cross-site gate. Cost and quota routes still refuse reverse-proxy
+headers unless `GEV_TRUST_NATIVE_CLIENTS=1`. `render.yaml` is a free-tier
+blueprint; `GEV_ALLOWED_HOSTS` (and Render's `RENDER_EXTERNAL_HOSTNAME`) names
+the public host. Phone-width and coarse-pointer landscape screens use the
+existing bottom-sheet shell. See docs/IOS.md.
+
 Docker Compose mounts the checkout with the shared SELinux `:z` label so
 containers can read it on enforcing SELinux hosts. The separate image-owned
 `node_modules` volume and loopback-only port publishing remain unchanged.

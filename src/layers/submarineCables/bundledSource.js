@@ -30,8 +30,22 @@ export function createBundledCableSource({
       }
       throw new Error(`HTTP ${response.status} for ${url}`);
     }
-    const json = await response.json();
+    const type = String(response.headers?.get?.('content-type') || '');
+    if (/text\/html/i.test(type))
+      throw new Error('Submarine cables unavailable');
+    let json;
+    try {
+      json = await response.json();
+    } catch {
+      throw new Error('Submarine cables unavailable');
+    }
     signal?.throwIfAborted();
+    if (
+      !json ||
+      json.type !== 'FeatureCollection' ||
+      !Array.isArray(json.features)
+    )
+      throw new Error('Submarine cables unavailable');
     return json;
   }
   return {

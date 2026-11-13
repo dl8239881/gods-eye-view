@@ -26,6 +26,7 @@ const FEED_ERRORS = new Set([
   msg('OpenSky auth required'),
   msg('OpenSky auth invalid'),
   msg('OpenSky auth failed'),
+  msg('Needs server, set UPLINK'),
 ]);
 const FEED_ERROR_PATTERNS = [
   // Street Level provider errors (providers/{kartaview,panoramax}/source.js),

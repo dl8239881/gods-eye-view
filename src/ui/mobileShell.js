@@ -18,7 +18,8 @@ import {
   readPanelState,
 } from './rail/panelState.js';
 
-export const MOBILE_SHELL_MEDIA_QUERY = '(max-width: 720px)';
+export const MOBILE_SHELL_MEDIA_QUERY =
+  '(max-width: 720px), (hover: none) and (pointer: coarse) and (max-width: 1024px)';
 export const MOBILE_SHELL_CLASS = 'mobile-shell';
 export const MOBILE_SHEET_ATTR = 'data-mobile-sheet';
 
