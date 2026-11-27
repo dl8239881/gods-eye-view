@@ -75,8 +75,8 @@ public enum JSONImporter {
             }
             return try store.upsert(entities: entities, links: links)
         }
-        let entity = try entity(from: document, fallback: provenance)
-        return try store.upsert(entities: [entity], links: [])
+        let single = try entity(from: document, fallback: provenance)
+        return try store.upsert(entities: [single], links: [])
     }
 
     private static func entity(from object: [String: Any], fallback: Provenance) throws -> Entity {
