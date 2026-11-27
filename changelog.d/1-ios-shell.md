@@ -20,6 +20,8 @@
   tap on a flight, satellite or camera opens a native sheet. Page pinch
   is locked on the web view so the globe's own pinch keeps working. A
   one-finger drag rotates the globe: the web view's pan recognizer is
-  disabled, so it cannot cancel that drag or bounce the page.
+  disabled, so it cannot cancel that drag or bounce the page. The globe
+  view stays attached while another tab is open, and a drag keeps
+  requesting frames so a torn frame cannot sit on screen.
   `render.yaml` is a free-tier blueprint; install steps are in
   `docs/IOS.md` (#1).

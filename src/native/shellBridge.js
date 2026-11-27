@@ -414,6 +414,16 @@ export function installShellBridge(application) {
       globalThis.location?.reload?.();
       return { ok: true };
     }
+    if (op === 'wake') {
+      let frames = 0;
+      const paint = () => {
+        viewer.scene.requestRender();
+        frames += 1;
+        if (frames < 8) requestAnimationFrame(paint);
+      };
+      paint();
+      return { ok: true };
+    }
     if (op === 'quality')
       return { quality: applyQuality(viewer, command.level) };
     if (op === 'settings') {

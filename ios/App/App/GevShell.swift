@@ -299,6 +299,15 @@ final class GlobeStore: ObservableObject {
         }
     }
 
+    func wakeGlobe() async {
+        webView?.setNeedsLayout()
+        do {
+            _ = try await call(["op": "wake"])
+        } catch {
+            status = ""
+        }
+    }
+
     func loadSettings() async {
         do {
             let value = try await callWhenReady(["op": "settings"])
@@ -414,37 +423,75 @@ struct GevRootView: View {
     @State private var tab = 0
 
     var body: some View {
-        TabView(selection: $tab) {
-            globeTab
-                .tabItem { Label("Globe", systemImage: "globe.americas") }
-                .tag(0)
-            LayersScreen()
-                .tabItem { Label("Layers", systemImage: "square.3.layers.3d") }
-                .tag(1)
-            CamerasScreen(tab: $tab)
-                .tabItem { Label("Cameras", systemImage: "video") }
-                .tag(2)
-            SearchScreen(tab: $tab)
-                .tabItem { Label("Search", systemImage: "magnifyingglass") }
-                .tag(3)
-            SettingsScreen()
-                .tabItem { Label("Settings", systemImage: "gearshape") }
-                .tag(4)
+        // The web view stays in the window on every tab. Removing it with the
+        // Globe page suspends WKWebView, and the next visit is a black frame
+        // that ignores the next drag.
+        ZStack {
+            GlobeRepresentable()
+                .ignoresSafeArea()
+                .allowsHitTesting(tab == 0)
+            if tab != 0 {
+                tabPage
+                    .padding(.bottom, 49)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(
+                        Color(red: 10 / 255, green: 10 / 255, blue: 15 / 255)
+                            .ignoresSafeArea()
+                    )
+            }
         }
+        .overlay(alignment: .bottom) { tabBar }
         .preferredColorScheme(.dark)
         .sheet(item: $store.pick) { pick in
             EntitySheet(pick: pick, tab: $tab)
         }
         .onAppear { store.startMaintenance() }
+        .onChange(of: tab, perform: { selected in
+            if selected == 0 {
+                Task { await store.wakeGlobe() }
+            }
+        })
     }
 
-    private var globeTab: some View {
-        // The globe is not in a ScrollView. Lists on the other tabs keep their own scrolling.
-        let globe = GlobeRepresentable().ignoresSafeArea()
-        if #available(iOS 16.0, *) {
-            return AnyView(globe.scrollDisabled(true))
+    @ViewBuilder
+    private var tabPage: some View {
+        switch tab {
+        case 1: LayersScreen()
+        case 2: CamerasScreen(tab: $tab)
+        case 3: SearchScreen(tab: $tab)
+        default: SettingsScreen()
         }
-        return AnyView(globe)
+    }
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            tabButton(0, "Globe", "globe.americas")
+            tabButton(1, "Layers", "square.3.layers.3d")
+            tabButton(2, "Cameras", "video")
+            tabButton(3, "Search", "magnifyingglass")
+            tabButton(4, "Settings", "gearshape")
+        }
+        .padding(.top, 6)
+        .padding(.bottom, 2)
+        .background(.ultraThinMaterial)
+    }
+
+    private func tabButton(_ index: Int, _ title: String, _ symbol: String) -> some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            tab = index
+        } label: {
+            VStack(spacing: 3) {
+                Image(systemName: symbol)
+                    .font(.system(size: 20))
+                Text(title)
+                    .font(.caption2)
+            }
+            .frame(maxWidth: .infinity)
+            .foregroundStyle(tab == index ? Color.accentColor : Color.secondary)
+            .padding(.vertical, 4)
+        }
+        .buttonStyle(.plain)
     }
 }
 

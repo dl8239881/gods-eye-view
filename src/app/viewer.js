@@ -434,25 +434,33 @@ export function createApplicationViewer({ container, creditContainer }) {
       viewer.camera.changed.addEventListener(() =>
         viewer.scene.requestRender(),
       );
-      // A one-finger drag and the coast after it must keep drawing. Otherwise
-      // requestRenderMode holds the last frame and the turn looks stuck.
+      // requestRenderMode does not run preUpdate until a render is already
+      // queued, so the pump has to live on the display link. Otherwise one
+      // torn frame stays on screen for the rest of the drag.
       const drags = new Set();
       let coastUntil = 0;
-      viewer.scene.preUpdate.addEventListener(() => {
-        if (drags.size > 0 || performance.now() < coastUntil)
-          viewer.scene.requestRender();
-      });
+      let pumpId = 0;
+      const pump = () => {
+        pumpId = 0;
+        if (drags.size === 0 && performance.now() >= coastUntil) return;
+        viewer.scene.requestRender();
+        pumpId = globalThis.requestAnimationFrame(pump);
+      };
+      const kick = () => {
+        viewer.scene.requestRender();
+        if (!pumpId) pumpId = globalThis.requestAnimationFrame(pump);
+      };
       const beginDrag = (event) => {
         if (event.pointerType === 'mouse') return;
         drags.add(event.pointerId);
-        viewer.scene.requestRender();
+        kick();
       };
       const endDrag = (event) => {
         if (event.pointerType === 'mouse') return;
         const turning = drags.size > 0;
         drags.delete(event.pointerId);
         if (turning && drags.size === 0) coastUntil = performance.now() + 900;
-        viewer.scene.requestRender();
+        kick();
       };
       viewer.resolutionScale = Math.min(
         1,
