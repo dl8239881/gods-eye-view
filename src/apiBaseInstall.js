@@ -11,16 +11,6 @@ globalThis.__GEV_API_BASE__ = activeApiBase;
 try {
   if (isNativeShell() && globalThis.document?.documentElement) {
     globalThis.document.documentElement.dataset.nativeApp = 'ios';
-    const blockPageZoom = (event) => {
-      if (event.target?.closest?.('#cesiumContainer')) return;
-      event.preventDefault();
-    };
-    globalThis.document.addEventListener('gesturestart', blockPageZoom, {
-      passive: false,
-    });
-    globalThis.document.addEventListener('gesturechange', blockPageZoom, {
-      passive: false,
-    });
   }
 } catch {
   /* The document is optional in non-browser hosts. */

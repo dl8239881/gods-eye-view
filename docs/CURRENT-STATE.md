@@ -8,7 +8,9 @@ origins in the cross-site gate. Cost and quota routes still refuse reverse-proxy
 headers unless `GEV_TRUST_NATIVE_CLIENTS=1`. `render.yaml` is a free-tier
 blueprint; `GEV_ALLOWED_HOSTS` (and Render's `RENDER_EXTERNAL_HOSTNAME`) names
 the public host. Phone-width and coarse-pointer landscape screens use the
-existing bottom-sheet shell. See docs/IOS.md.
+existing bottom-sheet shell. The installed app hides that chrome and uses a
+SwiftUI tab bar (Globe, Layers, Cameras, Search, Settings) around the globe.
+See docs/IOS.md.
 
 Docker Compose mounts the checkout with the shared SELinux `:z` label so
 containers can read it on enforcing SELinux hosts. The separate image-owned

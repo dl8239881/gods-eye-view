@@ -13,6 +13,11 @@
   and a capped set of landing points, not a ground-clamped entity per
   segment, and local infrastructure GeoJSON skips ground clamping and
   stays under a feature budget. A bad cable file sets the layer
-  unavailable instead of throwing a parse error.
+  unavailable instead of throwing a parse error. The phone UI is a
+  SwiftUI tab bar (Globe, Layers, Cameras, Search, Settings) around the
+  full-screen globe. Web chrome stays hidden there. Layers, camera
+  stills, place search, UPLINK and quality go through `gevShell`, and a
+  tap on a flight, satellite or camera opens a native sheet. Page pinch
+  is locked on the web view so the globe's own pinch keeps working.
   `render.yaml` is a free-tier blueprint; install steps are in
   `docs/IOS.md` (#1).

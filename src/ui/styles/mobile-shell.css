@@ -434,14 +434,74 @@ body.mobile-shell.cockpit-mode #mobile-tab-bar {
   display: none;
 }
 
+/* No text selection or callout loupe on the native shell. Inputs stay editable. */
+html[data-native-app] :is(
+  body,
+  #cesiumContainer,
+  #cesiumContainer canvas,
+  button,
+  a,
+  label
+) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-native-app] :is(
+  input,
+  textarea,
+  select,
+  [contenteditable='true']
+) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 /* The page itself does not zoom. The globe canvas keeps its own pinch. */
 html[data-native-app] body {
   touch-action: manipulation;
 }
 
 html[data-native-app] #cesiumContainer,
-html[data-native-app] #cesiumContainer canvas {
+html[data-native-app] #cesiumContainer canvas,
+html[data-native-app] .cesium-widget,
+html[data-native-app] .cesium-widget canvas {
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html[data-native-app] :is(
+  #mobile-tab-bar,
+  #mobile-sheet-backdrop,
+  #left-panel-stack,
+  #right-context-rail,
+  #command-dock,
+  #corner-actions,
+  #top-center-actions,
+  #title-bar,
+  #style-indicator,
+  #global-loading-status,
+  #traffic-sync-chip,
+  #cctv-sync-chip,
+  #orbit-indicator,
+  #uplink,
+  #key-setup,
+  #intel-hud
+) {
+  display: none !important;
+}
+
+html[data-native-app] .cesium-widget-credits {
+  bottom: calc(env(safe-area-inset-bottom) + 64px) !important;
+}
+
+html[data-native-app][data-native-ready] #loading-screen {
+  display: none !important;
 }
 
 html[data-native-app] :is(input, select, textarea) {

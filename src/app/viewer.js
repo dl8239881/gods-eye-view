@@ -412,8 +412,42 @@ export function createApplicationViewer({ container, creditContainer }) {
     // A phone pinch spans fewer screen pixels than desktop zoom gestures.
     // Keep Cesium's distance-aware zoom and collision limits, with less travel
     // required on touch-first screens. Mouse/trackpad sensitivity stays native.
-    if (globalThis.matchMedia?.('(pointer: coarse)').matches)
+    const coarse = globalThis.matchMedia?.('(pointer: coarse)').matches;
+    const native = globalThis.Capacitor?.isNativePlatform?.() === true;
+    if (coarse || native) {
       viewer.scene.screenSpaceCameraController.zoomFactor *= 3;
+    }
+    if (native) {
+      // Keep the clock painting live traffic, but not a full 60 frames when
+      // the camera is still. A lost WebGL context is allowed to come back.
+      viewer.scene.requestRenderMode = true;
+      viewer.scene.maximumRenderTimeChange = 1 / 20;
+      viewer.camera.percentageChanged = 0.01;
+      viewer.camera.changed.addEventListener(() =>
+        viewer.scene.requestRender(),
+      );
+      viewer.resolutionScale = Math.min(
+        1,
+        2 / Math.max(1, globalThis.devicePixelRatio || 1),
+      );
+      viewer.targetFrameRate = 30;
+      const globe = viewer.scene.globe;
+      if (globe) {
+        globe.maximumScreenSpaceError = 4;
+        globe.tileCacheSize = 80;
+      }
+      const canvas = viewer.canvas;
+      canvas?.addEventListener?.(
+        'webglcontextlost',
+        (event) => event.preventDefault(),
+        false,
+      );
+      canvas?.addEventListener?.(
+        'webglcontextrestored',
+        () => viewer.scene.requestRender(),
+        false,
+      );
+    }
     limitZoomOut(viewer);
     // Before any tile builds a draw command: Cesium's per-vertex model
     // atmosphere fails to LINK on Apple's Metal backend and kills the

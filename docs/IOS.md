@@ -52,10 +52,10 @@ The client calls `/api/...` on its own origin unless a base is set.
   workflow injects it when it runs `npm run build`. An empty value leaves the
   app same-origin until you set the uplink below. `npm run dev` and the web
   build stay same-origin when the variable is unset.
-- **On the phone.** Open **UPLINK** (the chip on a phone or in the installed
-  app, and the same control inside POWER UP on the dev server). Paste the
-  server URL and save. The page reloads and later `/api` calls go there. Clear
-  restores the build-time value. The choice is stored on the device.
+- **On the phone.** Open **Settings** and save **UPLINK**. Paste the server
+  URL and save. The globe reloads and later `/api` calls go there. **Use
+  public feeds** clears it and restores the build-time value. The choice is
+  stored on the device. The same control is inside POWER UP on the dev server.
 
 `https://` is the right scheme for a public server. The iOS shell allows plain
 `http://` as well, so a LAN server works, but do not put a public server on
@@ -88,6 +88,18 @@ On the workflow run, open **Artifacts** and download `GodsEyeView.ipa`.
 The bundle id is `com.dylanlang.godseyeview`. The name on the home screen is
 God's Eye View. Portrait and landscape are both supported.
 
+The installed app is a SwiftUI tab bar around the globe:
+
+| Tab | What it does |
+| --- | --- |
+| Globe | Full-screen Cesium view. Pinch, rotate and tilt stay on the globe. A tap on a flight, satellite or camera opens a short native sheet. |
+| Layers | Native toggles in the same groups as the web panel, plus a layer's own chips. Each row reads OK, Unavailable, or Needs server. |
+| Cameras | Keyless NSW, TfL and Caltrans stills. A row opens the frame and can fly the globe there. |
+| Search | Place search. A result flies the globe and returns to the Globe tab. |
+| Settings | UPLINK URL and a Low / Medium / High performance control. |
+
+The web panels, bottom bar, title and UPLINK chip are not drawn in the app.
+
 ## What is limited on iOS
 
 - **No local server and no POWER UP key saving.** Paste keys into the hosted
@@ -110,3 +122,8 @@ God's Eye View. Portrait and landscape are both supported.
 - WebGL, inline video and the globe run in WKWebView. A free Render instance
   can be slow to wake, and a phone GPU will not match a desktop for dense
   layers.
+- **Still the web globe, not a Swift scene.** Voice, news, directions, draw,
+  import, weather readouts and the POWER UP key editor are not native
+  screens. Camera catalogs beyond NSW, TfL and Caltrans still need UPLINK.
+  Layer chips that are sliders or date ranges are not in the Layers tab;
+  on/off and named chips are.
