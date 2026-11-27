@@ -1,19 +1,37 @@
 import { PACK_LIMITS, validateAssetPath } from './manifest.js';
 
+/**
+ * A directory the app itself serves. HTTP(S) covers the web app. The
+ * Capacitor and Ionic shells serve the built files from `capacitor://localhost`
+ * and `ionic://localhost`; WKWebView cannot register `https` as that scheme.
+ * Scene files still cannot replace this origin or escape its path.
+ * @param {URL} url
+ * @returns {boolean}
+ */
+function isAssetDirectory(url) {
+  if (
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash ||
+    !url.pathname.endsWith('/')
+  )
+    return false;
+  if (url.protocol === 'https:' || url.protocol === 'http:') return true;
+  const host = url.hostname.toLowerCase();
+  return (
+    (url.protocol === 'capacitor:' || url.protocol === 'ionic:') &&
+    host === 'localhost'
+  );
+}
+
 /** Register a fixed asset directory. Scene files cannot replace its origin or escape its path. */
 export function createAssetDirectorySource({
   baseUrl,
   fetchImpl = globalThis.fetch,
 }) {
   const base = new URL(baseUrl);
-  if (
-    !['https:', 'http:'].includes(base.protocol) ||
-    base.username ||
-    base.password ||
-    base.search ||
-    base.hash ||
-    !base.pathname.endsWith('/')
-  )
+  if (!isAssetDirectory(base))
     throw new TypeError(
       'Asset source requires an explicit HTTP(S) directory URL',
     );

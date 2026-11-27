@@ -1,0 +1,33 @@
+{
+  "entities": [
+    {
+      "id": "person-jose",
+      "kind": "person",
+      "name": "José Martí",
+      "occurred_at": "1853-01-28T00:00:00Z",
+      "properties": { "role": "writer" },
+      "provenance": {
+        "source": "fixture",
+        "retrieved_at": "2024-01-01T00:00:00Z",
+        "external_id": "jose"
+      }
+    },
+    {
+      "id": "org-havana",
+      "kind": "organization",
+      "name": "Havana Press",
+      "provenance": {
+        "source": "fixture",
+        "retrievedAt": "2024-01-01T00:00:00Z"
+      }
+    }
+  ],
+  "links": [
+    {
+      "type": "affiliated_with",
+      "from_id": "person-jose",
+      "to_id": "org-havana",
+      "provenance": { "source": "fixture", "retrieved_at": "2024-01-01T00:00:00Z" }
+    }
+  ]
+}

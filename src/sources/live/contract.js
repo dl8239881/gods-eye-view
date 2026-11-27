@@ -133,6 +133,16 @@ export async function readResponse(
     /* classified below */
   }
   signal?.throwIfAborted();
+  const type = String(response.headers?.get?.('content-type') || '');
+  if (
+    payload?.code === 'NEEDS_SERVER' ||
+    (response.ok && payload == null && /text\/html/i.test(type))
+  ) {
+    throw new LiveSourceError('unavailable', 'Needs server, set UPLINK', {
+      source,
+      status: response.status,
+    });
+  }
   return { response, payload };
 }
 

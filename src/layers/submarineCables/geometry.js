@@ -67,6 +67,40 @@ export function featureLabel(feature) {
   return String(props.name || props.id || feature?.id || '').trim();
 }
 
+/** Keep endpoints and evenly spaced vertices so a globe line stays recognizable. */
+export function decimateLine(coords, maxPoints = 48) {
+  if (!Array.isArray(coords) || coords.length <= maxPoints) return coords || [];
+  const last = coords.length - 1;
+  const out = [];
+  for (let i = 0; i < maxPoints; i++) {
+    const index = Math.round((i * last) / (maxPoints - 1));
+    const point = coords[index];
+    const prev = out[out.length - 1];
+    if (!prev || prev[0] !== point[0] || prev[1] !== point[1]) out.push(point);
+  }
+  return out;
+}
+
+/** Line strings only, thinned. Used by the phone path that skips GeoJsonDataSource. */
+export function cablePolylines(features, maxPoints = 48) {
+  const lines = [];
+  for (const feature of features || []) {
+    const geometry = feature?.geometry;
+    const parts =
+      geometry?.type === 'LineString'
+        ? [geometry.coordinates]
+        : geometry?.type === 'MultiLineString'
+          ? geometry.coordinates
+          : [];
+    for (const line of parts) {
+      if (!Array.isArray(line) || line.length < 2) continue;
+      const simplified = decimateLine(line, maxPoints);
+      if (simplified.length >= 2) lines.push(simplified);
+    }
+  }
+  return lines;
+}
+
 export function normalizeFeatures(json, kind) {
   const features = Array.isArray(json?.features) ? json.features : [];
   return features.map((feature, index) => {

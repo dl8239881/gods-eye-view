@@ -412,8 +412,81 @@ export function createApplicationViewer({ container, creditContainer }) {
     // A phone pinch spans fewer screen pixels than desktop zoom gestures.
     // Keep Cesium's distance-aware zoom and collision limits, with less travel
     // required on touch-first screens. Mouse/trackpad sensitivity stays native.
-    if (globalThis.matchMedia?.('(pointer: coarse)').matches)
+    const coarse = globalThis.matchMedia?.('(pointer: coarse)').matches;
+    const native = globalThis.Capacitor?.isNativePlatform?.() === true;
+    if (coarse || native) {
       viewer.scene.screenSpaceCameraController.zoomFactor *= 3;
+    }
+    if (native) {
+      // Keep the clock painting live traffic, but not a full 60 frames when
+      // the camera is still. A lost WebGL context is allowed to come back.
+      const controller = viewer.scene.screenSpaceCameraController;
+      controller.enableRotate = true;
+      controller.enableTilt = true;
+      controller.enableTranslate = true;
+      controller.enableZoom = true;
+      controller.inertiaSpin = 0.9;
+      controller.inertiaTranslate = 0.9;
+      controller.inertiaZoom = 0.8;
+      viewer.scene.requestRenderMode = true;
+      viewer.scene.maximumRenderTimeChange = 1 / 20;
+      viewer.camera.percentageChanged = 0.01;
+      viewer.camera.changed.addEventListener(() =>
+        viewer.scene.requestRender(),
+      );
+      // requestRenderMode does not run preUpdate until a render is already
+      // queued, so the pump has to live on the display link. Otherwise one
+      // torn frame stays on screen for the rest of the drag.
+      const drags = new Set();
+      let coastUntil = 0;
+      let pumpId = 0;
+      const pump = () => {
+        pumpId = 0;
+        if (drags.size === 0 && performance.now() >= coastUntil) return;
+        viewer.scene.requestRender();
+        pumpId = globalThis.requestAnimationFrame(pump);
+      };
+      const kick = () => {
+        viewer.scene.requestRender();
+        if (!pumpId) pumpId = globalThis.requestAnimationFrame(pump);
+      };
+      const beginDrag = (event) => {
+        if (event.pointerType === 'mouse') return;
+        drags.add(event.pointerId);
+        kick();
+      };
+      const endDrag = (event) => {
+        if (event.pointerType === 'mouse') return;
+        const turning = drags.size > 0;
+        drags.delete(event.pointerId);
+        if (turning && drags.size === 0) coastUntil = performance.now() + 900;
+        kick();
+      };
+      viewer.resolutionScale = Math.min(
+        1,
+        2 / Math.max(1, globalThis.devicePixelRatio || 1),
+      );
+      viewer.targetFrameRate = 30;
+      const globe = viewer.scene.globe;
+      if (globe) {
+        globe.maximumScreenSpaceError = 4;
+        globe.tileCacheSize = 80;
+      }
+      const canvas = viewer.canvas;
+      canvas?.addEventListener?.('pointerdown', beginDrag);
+      canvas?.addEventListener?.('pointerup', endDrag);
+      canvas?.addEventListener?.('pointercancel', endDrag);
+      canvas?.addEventListener?.(
+        'webglcontextlost',
+        (event) => event.preventDefault(),
+        false,
+      );
+      canvas?.addEventListener?.(
+        'webglcontextrestored',
+        () => viewer.scene.requestRender(),
+        false,
+      );
+    }
     limitZoomOut(viewer);
     // Before any tile builds a draw command: Cesium's per-vertex model
     // atmosphere fails to LINK on Apple's Metal backend and kills the

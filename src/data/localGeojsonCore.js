@@ -12,6 +12,56 @@ import {
   shouldRecomputeInfraLod,
 } from './localGeojsonLod.js';
 
+function phoneWebView() {
+  try {
+    return globalThis.Capacitor?.isNativePlatform?.() === true;
+  } catch {
+    return false;
+  }
+}
+
+function thinLine(coords, maxPoints) {
+  if (!Array.isArray(coords) || coords.length <= maxPoints) return coords;
+  const last = coords.length - 1;
+  const out = [];
+  for (let i = 0; i < maxPoints; i++) {
+    const point = coords[Math.round((i * last) / (maxPoints - 1))];
+    const prev = out[out.length - 1];
+    if (!prev || prev[0] !== point[0] || prev[1] !== point[1]) out.push(point);
+  }
+  return out;
+}
+
+/** Cap features and line vertices before Cesium builds a ground-clamped entity per shape. */
+function budgetPhoneFeatures(features) {
+  const maxFeatures = 800;
+  const stride = Math.max(1, Math.ceil(features.length / maxFeatures));
+  const kept =
+    stride === 1
+      ? features
+      : features.filter((_, index) => index % stride === 0);
+  return kept.map((feature) => {
+    const geometry = feature?.geometry;
+    if (geometry?.type === 'LineString')
+      return {
+        ...feature,
+        geometry: {
+          ...geometry,
+          coordinates: thinLine(geometry.coordinates, 40),
+        },
+      };
+    if (geometry?.type === 'MultiLineString')
+      return {
+        ...feature,
+        geometry: {
+          ...geometry,
+          coordinates: geometry.coordinates.map((line) => thinLine(line, 40)),
+        },
+      };
+    return feature;
+  });
+}
+
 const DEFAULT_LABEL_MAX = 900;
 const DEFAULT_LABEL_GRID_PX = 132;
 const VISIBILITY_UPDATE_MS = 450;
@@ -601,14 +651,16 @@ export function createLocalGeoJsonLayer(
                 _cachedFeatures = features;
               }
 
+              const phone = phoneWebView();
               const geojson = {
                 type: 'FeatureCollection',
-                features,
+                features: phone ? budgetPhoneFeatures(features) : features,
               };
 
-              // Natively parse into entities and use it as our _dataSource
+              // Natively parse into entities and use it as our _dataSource.
+              // Ground clamping every local feature is what exhausts WKWebView.
               loaded = await Cesium.GeoJsonDataSource.load(geojson, {
-                clampToGround: true,
+                clampToGround: !phone,
                 stroke: baseColor,
                 fill: baseColor.withAlpha(0.3),
                 strokeWidth: 2,

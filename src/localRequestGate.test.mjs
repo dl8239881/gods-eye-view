@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { admitSameSiteRequest } from './localRequestGate.mjs';
+import {
+  admitSameSiteRequest,
+  trustNativeClientsFromEnv,
+} from './localRequestGate.mjs';
 
 const same = {
   hostHeader: 'localhost:4173',
@@ -104,4 +107,61 @@ test('a missing Host with a present Origin is refused (no authority to match)', 
 
 test('a foreign Host is refused when an Origin is present', () => {
   assert.equal(admitSameSiteRequest({ ...same, hostHeader: 'evil.example:4173' }).ok, false, 'foreign Host does not match local Origin');
+});
+
+test('the Capacitor and Ionic shells are the app, including cross-site fetch metadata', () => {
+  for (const origin of ['capacitor://localhost', 'ionic://localhost']) {
+    assert.equal(
+      admitSameSiteRequest({
+        hostHeader: 'globe.example.onrender.com',
+        protocol: 'https:',
+        origin,
+        secFetchSite: 'cross-site',
+      }).ok,
+      true,
+      origin,
+    );
+  }
+});
+
+test('a native shell still refuses proxy headers until the host opts in', () => {
+  const native = {
+    hostHeader: 'globe.example.onrender.com',
+    protocol: 'https:',
+    origin: 'capacitor://localhost',
+    secFetchSite: 'cross-site',
+    proxyHeaders: { 'x-forwarded-for': '1.2.3.4' },
+  };
+  assert.equal(admitSameSiteRequest(native).ok, false);
+  assert.equal(admitSameSiteRequest({ ...native, trustNativeClients: true }).ok, true);
+});
+
+test('a website cannot borrow the native-shell exception', () => {
+  for (const origin of [
+    'https://evil.example',
+    'capacitor://evil.example',
+    'capacitor://localhost.evil.com',
+    'capacitor://user:pass@localhost',
+    'https://localhost',
+    'null',
+  ]) {
+    assert.equal(
+      admitSameSiteRequest({
+        hostHeader: 'globe.example.onrender.com',
+        protocol: 'https:',
+        origin,
+        secFetchSite: 'cross-site',
+        trustNativeClients: true,
+      }).ok,
+      false,
+      origin,
+    );
+  }
+});
+
+test('GEV_TRUST_NATIVE_CLIENTS is an explicit opt-in', () => {
+  assert.equal(trustNativeClientsFromEnv({}), false);
+  assert.equal(trustNativeClientsFromEnv({ GEV_TRUST_NATIVE_CLIENTS: '0' }), false);
+  assert.equal(trustNativeClientsFromEnv({ GEV_TRUST_NATIVE_CLIENTS: '1' }), true);
+  assert.equal(trustNativeClientsFromEnv({ GEV_TRUST_NATIVE_CLIENTS: ' yes ' }), true);
 });

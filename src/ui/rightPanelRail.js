@@ -89,7 +89,9 @@ export function layoutRightPanelRail({
   }
   // One panel is open per desktop side; this marker is distinct from
   // Tactical's space-based collapse.
-  const isMobile = windowRef.matchMedia('(max-width: 720px)').matches;
+  const isMobile = windowRef.matchMedia(
+    '(max-width: 720px), (hover: none) and (pointer: coarse) and (max-width: 1024px)',
+  ).matches;
   settleSideAccordion({
     panels,
     enabled: !isMobile,

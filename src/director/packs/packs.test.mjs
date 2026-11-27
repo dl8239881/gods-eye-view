@@ -112,6 +112,38 @@ test('image bounds and media anchor references are explicit and validated', () =
   assert.doesNotThrow(() => parseSceneDocument(JSON.stringify(p)));
 });
 
+test('the installed app bundle is an asset directory and other schemes are not', async () => {
+  const requests = [];
+  const source = createAssetDirectorySource({
+    baseUrl: new URL('/scene-assets/', 'capacitor://localhost/index.html').href,
+    fetchImpl: async (url) => {
+      requests.push(String(url));
+      return new Response(new Uint8Array([9]), {
+        headers: { 'content-type': 'application/json' },
+      });
+    },
+  });
+  assert.equal((await source({ path: 'pack.json' })).bytes[0], 9);
+  assert.equal(requests[0], 'capacitor://localhost/scene-assets/pack.json');
+  assert.doesNotThrow(() =>
+    createAssetDirectorySource({
+      baseUrl: 'ionic://localhost/scene-assets/',
+    }),
+  );
+  for (const baseUrl of [
+    'capacitor://evil.example/scene-assets/',
+    'capacitor://localhost.evil.com/scene-assets/',
+    'capacitor://localhost/scene-assets',
+    'capacitor://user:pass@localhost/scene-assets/',
+    'file:///scene-assets/',
+  ])
+    assert.throws(
+      () => createAssetDirectorySource({ baseUrl }),
+      /explicit HTTP\(S\) directory URL/,
+      baseUrl,
+    );
+});
+
 test('directory source confines paths, strips credentials and rejects redirects, oversized streaming bodies and missing assets', async () => {
   const requests = [];
   const source = createAssetDirectorySource({

@@ -62,6 +62,7 @@
       "src/ui/views/DisplayControlsView.vue",
       "src/ui/views/LayerPanelsView.vue",
       "src/ui/views/ProviderSettingsView.vue",
+      "src/apiBase.js",
       "src/ui/views/SceneChromeView.vue",
       "src/ui/views/WelcomeView.vue",
       "src/ui/views/SceneOptions.vue",
@@ -193,6 +194,8 @@
     "modules": [
       "build/vite.js",
       "build/allowedHosts.js",
+      "build/nativeClientCors.js",
+      "src/localRequestGate.mjs",
       "build/embed-framing.js",
       "build/panel.js",
       "build/vueOptions.js",

@@ -1,0 +1,28 @@
+# God's Eye View on Render's free web tier.
+# The image is the repo Dockerfile: Vite serves the client and the /api proxies.
+# Provider keys are environment variables on the service. They stay on the server.
+#
+# After the first deploy, set GEV_ALLOWED_HOSTS to the hostname Render assigned
+# (for example gods-eye-view.onrender.com). When Render injects
+# RENDER_EXTERNAL_HOSTNAME, that name is allowed as well.
+#
+# GEV_TRUST_NATIVE_CLIENTS=1 lets the sideloaded iOS app use keyed proxies
+# through Render's proxy headers. The URL is then a public key broker: set
+# provider quotas before adding keys, and set the variable to 0 to refuse
+# those proxied calls again. See docs/IOS.md.
+services:
+  - type: web
+    name: gods-eye-view
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: GEV_KEY_SETUP_TRUSTED_PEERS
+        value: none
+      - key: GEV_TRUST_NATIVE_CLIENTS
+        value: "1"
+      - key: GEV_ALLOWED_HOSTS
+        sync: false

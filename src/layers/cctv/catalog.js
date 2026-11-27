@@ -243,6 +243,7 @@ export function createCatalog({ state: layerState, services, parts, source }) {
         code: String(source.code || ''),
         sourceUrl: String(source.sourceUrl || ''),
         browserMediaUrl: String(source.browserMediaUrl || ''),
+        directImageUrl: String(source.directImageUrl || ''),
         accuracyM: parts.model.safeNumber(source.accuracyM, NaN),
         positionSource: String(source.positionSource || ''),
         // Shipped precompute (see server/providers/cctv/groundHeights.js).

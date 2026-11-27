@@ -1,5 +1,8 @@
 import { readRequestBody } from '../common/request.js';
-import { admitSameSiteRequest } from '../../../src/localRequestGate.mjs';
+import {
+  admitSameSiteRequest,
+  trustNativeClientsFromEnv,
+} from '../../../src/localRequestGate.mjs';
 import {
   isAllowedHost,
   resolveAllowedHosts,
@@ -29,6 +32,7 @@ export function isGeminiRequestOriginAllowed(
       origin,
       secFetchSite: req.headers?.['sec-fetch-site'],
       proxyHeaders: req.headers || {},
+      trustNativeClients: trustNativeClientsFromEnv(process.env),
     }).ok
   )
     return false;

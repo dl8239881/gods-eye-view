@@ -1,6 +1,14 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { computed, onBeforeUnmount, onMounted, shallowRef } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
+import {
+  activeApiBase,
+  buildTimeApiBase,
+  clearApiBase,
+  isNativeShell,
+  saveApiBase,
+  storedApiBase,
+} from '../../apiBase.js';
 import { t } from '../../i18n/index.js';
 import { vClassToggle } from '../rail/classToggle.js';
 import { vFieldValue } from '../rail/fieldValue.js';
@@ -33,7 +41,78 @@ onMounted(() => {
   themeObserver.observe(theme, { attributes: true, attributeFilter: ['data-ui-theme'] });
   sync();
 });
-onBeforeUnmount(() => themeObserver?.disconnect());
+onBeforeUnmount(() => {
+  themeObserver?.disconnect();
+  shellObserver?.disconnect();
+  phoneQuery?.removeEventListener?.('change', syncPhone);
+});
+
+// Hosted-server uplink. The dev server's POWER UP dialog can open it, and the
+// chip stays on a phone or the installed app, where that dialog is absent.
+const uplinkOpen = ref(false);
+const uplinkDraft = ref('');
+const uplinkMessage = ref('');
+const nativeShell = shallowRef(false);
+const phoneShell = shallowRef(false);
+const uplinkChosen = ref(false);
+let shellObserver = null;
+let phoneQuery = null;
+const syncPhone = () => {
+  phoneShell.value =
+    document.body.classList.contains('mobile-shell') ||
+    Boolean(phoneQuery?.matches);
+};
+const refreshUplink = () => {
+  uplinkChosen.value = storedApiBase() !== undefined || Boolean(buildTimeApiBase());
+  if (!uplinkOpen.value) uplinkDraft.value = activeApiBase();
+};
+const showUplink = computed(
+  () =>
+    nativeShell.value ||
+    phoneShell.value ||
+    uplinkChosen.value ||
+    uplinkOpen.value,
+);
+const openUplink = () => {
+  uplinkDraft.value = activeApiBase();
+  uplinkMessage.value = activeApiBase()
+    ? t('Hosted server')
+    : t("This page's own server");
+  uplinkOpen.value = true;
+};
+const closeUplink = () => {
+  uplinkOpen.value = false;
+};
+const applyUplink = () => {
+  const saved = saveApiBase(uplinkDraft.value);
+  if (saved == null) {
+    uplinkMessage.value = t(
+      'Use an http or https URL, without a username or password.',
+    );
+    return;
+  }
+  uplinkMessage.value = t('Uplink saved. Reloading.');
+  globalThis.location?.reload();
+};
+const resetUplink = () => {
+  clearApiBase();
+  uplinkMessage.value = t('Uplink saved. Reloading.');
+  globalThis.location?.reload();
+};
+onMounted(() => {
+  nativeShell.value = isNativeShell();
+  phoneQuery = window.matchMedia?.(
+    '(max-width: 720px), (hover: none) and (pointer: coarse) and (max-width: 1024px)',
+  );
+  phoneQuery?.addEventListener?.('change', syncPhone);
+  shellObserver = new MutationObserver(syncPhone);
+  shellObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+  syncPhone();
+  refreshUplink();
+});
 
 // The status line is a live region; vStatusText re-announces repeats.
 const statusText = computed(() => ({
@@ -55,6 +134,10 @@ const removeTitle = (title) =>
   <!-- Bottom-right HUD row: the POWER UP chip (while keys are missing) and
        the language picker, once the shell publishes it. -->
   <div id="corner-actions">
+    <button v-if="showUplink" id="uplink-chip" type="button" aria-haspopup="dialog" aria-controls="uplink" :title="t('Hosted server')" :aria-label="t('Hosted server')" @click="openUplink">
+      <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+      <span>{{ t('UPLINK') }}</span>
+    </button>
     <Teleport v-if="available" :to="cyber ? '#top-center-actions' : 'body'" :disabled="!cyber">
       <button id="key-setup-chip" type="button" :hidden="!chip || chip.hidden" aria-haspopup="dialog" aria-controls="key-setup" :title="chip?.title" :aria-label="chip?.title" @click="controls?.open()">
         <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
@@ -73,6 +156,10 @@ const removeTitle = (title) =>
     </header>
     <h2 id="key-setup-title">{{ t('Power up the globe') }}</h2>
     <p id="key-setup-description">{{ t('The globe already flies keyless. Every key below switches on another real feed — paste one and it\'s saved into this app\'s local configuration, then the server restarts itself. Server-side keys stay on this machine; Google Maps and Cesium ion run in the browser and must be provider-restricted. Keys you configured elsewhere are shown but never touched.') }}</p>
+    <div class="key-setup-uplink">
+      <button type="button" class="key-setup-get" @click="openUplink">{{ t('UPLINK') }}</button>
+      <p>{{ t('Point this app at a hosted God\'s Eye View server. Provider keys stay on that server.') }}</p>
+    </div>
     <div class="key-setup-rows ui-scroll" data-key-setup-rows>
       <section v-for="key in view?.rows ?? []" :key="`${key.id}:${view.generation}`" class="key-setup-row" :data-key-id="key.id" :data-set="String(key.set)" :data-managed="key.managed || undefined">
         <div class="key-setup-row-head">
@@ -99,5 +186,24 @@ const removeTitle = (title) =>
       <span class="key-setup-hint">{{ t('ESC to close') }}</span>
     </div>
     <p class="key-setup-note" data-key-setup-status role="status" aria-live="polite" v-status-text="statusText"></p>
+  </aside>
+  <aside v-if="uplinkOpen" id="uplink" role="dialog" aria-labelledby="uplink-title" aria-modal="true" @keydown.esc="closeUplink">
+    <header class="key-setup-header">
+      <span class="key-setup-kicker">{{ t('Hosted server') }}</span>
+      <button type="button" class="key-setup-close" :aria-label="t('Close')" @click="closeUplink">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <h2 id="uplink-title">{{ t('UPLINK') }}</h2>
+    <p>{{ t('Point this app at a hosted God\'s Eye View server. Provider keys stay on that server.') }}</p>
+    <label class="uplink-field">
+      <span>{{ t('Hosted server') }}</span>
+      <input id="uplink-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" autofocus :placeholder="t('https://your-server.example')" :value="uplinkDraft" @input="uplinkDraft = $event.target.value" />
+    </label>
+    <div class="key-setup-footer">
+      <button type="button" class="key-setup-apply" @click="applyUplink">{{ t('SAVE UPLINK') }}</button>
+      <button type="button" class="key-setup-remove" @click="resetUplink">{{ t('CLEAR UPLINK') }}</button>
+    </div>
+    <p class="key-setup-note" role="status">{{ uplinkMessage }}</p>
   </aside>
 </template>

@@ -123,7 +123,11 @@ test('Compose resolves shell and project dotenv policy before the launcher start
   for (const key of Object.keys(baseEnv)) {
     if (
       key.startsWith('COMPOSE_') ||
-      ['GEV_KEY_SETUP_TRUSTED_PEERS', 'GEV_ALLOWED_HOSTS'].includes(key)
+      [
+        'GEV_KEY_SETUP_TRUSTED_PEERS',
+        'GEV_ALLOWED_HOSTS',
+        'GEV_TRUST_NATIVE_CLIENTS',
+      ].includes(key)
     )
       delete baseEnv[key];
   }
@@ -155,12 +159,18 @@ test('Compose resolves shell and project dotenv policy before the launcher start
   const unset = config();
   assert.ok(unset.GEV_KEY_SETUP_TRUSTED_PEERS == null);
   assert.ok(unset.GEV_ALLOWED_HOSTS == null);
+  assert.ok(unset.GEV_TRUST_NATIVE_CLIENTS == null);
   const dotenv =
     'GEV_KEY_SETUP_TRUSTED_PEERS=none\nGEV_ALLOWED_HOSTS=globe.example.lan\n';
   assert.deepEqual(config(dotenv), {
     GEV_KEY_SETUP_TRUSTED_PEERS: 'none',
     GEV_ALLOWED_HOSTS: 'globe.example.lan',
+    GEV_TRUST_NATIVE_CLIENTS: null,
   });
+  assert.equal(
+    config(`${dotenv}GEV_TRUST_NATIVE_CLIENTS=1\n`).GEV_TRUST_NATIVE_CLIENTS,
+    '1',
+  );
   assert.equal(
     config(dotenv, { GEV_KEY_SETUP_TRUSTED_PEERS: '10.9.8.7' })
       .GEV_KEY_SETUP_TRUSTED_PEERS,

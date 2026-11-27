@@ -61,7 +61,10 @@ function layOut({ ui, name, minimize, restore }) {
   const isDocked = () => Boolean(ui.state.layout.docked);
   const listen = (target, event, handler) =>
     target?.addEventListener(event, handler, { signal: lifetime.signal });
-  const isMobile = () => view.matchMedia?.('(max-width: 720px)').matches;
+  const isMobile = () =>
+    view.matchMedia?.(
+      '(max-width: 720px), (hover: none) and (pointer: coarse) and (max-width: 1024px)',
+    ).matches;
   const shown = (element) =>
     !element.hidden && element.checkVisibility?.() !== false;
   // The rail yields its lane while any assistant panel is docked over it.

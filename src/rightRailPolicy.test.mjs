@@ -8,8 +8,17 @@ test('desktop side rails hide collapsed panels in every HUD layout, never on pho
   const right = readFileSync(new URL('./ui/rightPanelRail.js', import.meta.url), 'utf8');
   const left = readFileSync(new URL('./ui/leftPanelRail.js', import.meta.url), 'utf8');
   const css = readStylesheet(new URL('../style.css', import.meta.url));
+  const phoneShell =
+    '(max-width: 720px), (hover: none) and (pointer: coarse) and (max-width: 1024px)';
+  const shell = readFileSync(new URL('./ui/mobileShell.js', import.meta.url), 'utf8');
+  const voice = readFileSync(new URL('./voice/panelLayout.js', import.meta.url), 'utf8');
+  assert.match(shell, new RegExp(phoneShell.replace(/[()]/g, '\\$&')));
+  assert.match(voice, new RegExp(phoneShell.replace(/[()]/g, '\\$&')));
   for (const ui of [right, left]) {
-    assert.match(ui, /const isMobile = windowRef\.matchMedia\('\(max-width: 720px\)'\)\.matches/);
+    assert.match(
+      ui,
+      /windowRef\.matchMedia\(\s*'\(max-width: 720px\), \(hover: none\) and \(pointer: coarse\) and \(max-width: 1024px\)',\s*\)\.matches/,
+    );
     assert.match(ui, /if \(exclusive && panel\.classList\.contains\('collapsed'\)\)\s*panel\.setAttribute\('aria-hidden', 'true'\)/);
     assert.doesNotMatch(ui, /hud\.variant === 'cyber'/);
   }

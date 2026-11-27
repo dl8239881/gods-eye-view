@@ -52,7 +52,9 @@ export function layoutLeftPanelRail({
 
   // The existing narrow-screen composition has its own full-width stack.
   // Keep this desktop lane engine from fighting those dedicated rules.
-  const isMobile = windowRef.matchMedia('(max-width: 720px)').matches;
+  const isMobile = windowRef.matchMedia(
+    '(max-width: 720px), (hover: none) and (pointer: coarse) and (max-width: 1024px)',
+  ).matches;
   if (isMobile) {
     stack.classList.remove('layout-focus');
     stack.classList.remove('layout-tail');

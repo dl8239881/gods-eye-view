@@ -1,5 +1,6 @@
 import { msg, t } from '../../i18n/index.js';
 import {
+  cablePolylines,
   featureLabel,
   featureReference,
   normalizeFeatures,
@@ -7,6 +8,14 @@ import {
 import * as Cesium from 'cesium';
 
 const SOURCE_FEATURE_INDEX = '__gevSourceFeatureIndex';
+
+function lightweightCableDevice() {
+  try {
+    return globalThis.Capacitor?.isNativePlatform?.() === true;
+  } catch {
+    return false;
+  }
+}
 
 function indexedCollection(features) {
   return {
@@ -62,6 +71,29 @@ export function createIngestion({ state, parts, source }) {
 
       const cableFeatures = normalizeFeatures(cableJson, 'cable');
       const landingFeatures = normalizeFeatures(landingJson, 'landing');
+
+      // GeoJsonDataSource plus clampToGround builds a ground primitive and an
+      // entity per segment, then a stem for every cable and landing. That set
+      // exhausts WKWebView. The phone draws one polyline collection instead.
+      if (lightweightCableDevice()) {
+        if (!owns()) return;
+        parts.rendering.addLightweightGeometry(
+          viewer,
+          cablePolylines(cableFeatures, 32),
+          landingFeatures,
+        );
+        if (!owns()) {
+          parts.rendering.releaseDataSources(viewer);
+          return;
+        }
+        state._count = cableFeatures.length + landingFeatures.length;
+        state._loaded = true;
+        state._lastUpdate = Date.now();
+        state._loadingLabel = '';
+        parts.rendering.updateVisibility();
+        viewer.scene.requestRender?.();
+        return;
+      }
 
       const cableDataSource = await Cesium.GeoJsonDataSource.load(
         indexedCollection(cableFeatures),
