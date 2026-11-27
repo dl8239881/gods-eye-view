@@ -86,16 +86,17 @@ On the workflow run, open **Artifacts** and download `GodsEyeView.ipa`.
    Management → trust your Apple ID.
 
 The bundle id is `com.dylanlang.godseyeview`. The name on the home screen is
-God's Eye View. Portrait and landscape are both supported.
+God's Eye View. Portrait and landscape are both supported. The app requires
+iOS 16, which is what the on-device IntelKit package needs.
 
 The installed app is a SwiftUI tab bar around the globe:
 
 | Tab | What it does |
 | --- | --- |
-| Globe | Full-screen Cesium view. One finger turns the globe and keeps its coast. Pinch zooms. The page itself does not scroll. A tap on a flight, satellite or camera opens a short native sheet. |
+| Globe | Full-screen Cesium view. One finger turns the globe and keeps its coast. Pinch zooms. The page itself does not scroll. The search button finds a place and flies there. A tap on a flight, satellite, camera, or intel pin opens a short native sheet. |
 | Layers | Native toggles in the same groups as the web panel, plus a layer's own chips. Each row reads OK, Unavailable, or Needs server. |
 | Cameras | Keyless NSW, TfL and Caltrans stills. A row opens the frame and can fly the globe there. |
-| Search | Place search. A result flies the globe and returns to the Globe tab. |
+| Intel | On-device people, places, events, and organizations. A link graph, a GDELT fetch, and CSV/JSON import. A pin on the globe opens the same detail sheet. |
 | Settings | UPLINK URL and a Low / Medium / High performance control. |
 
 The web panels, bottom bar, title and UPLINK chip are not drawn in the app.

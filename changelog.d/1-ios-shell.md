@@ -22,6 +22,10 @@
   one-finger drag rotates the globe: the web view's pan recognizer is
   disabled, so it cannot cancel that drag or bounce the page. The globe
   view stays attached while another tab is open, and a drag keeps
-  requesting frames so a torn frame cannot sit on screen.
+  requesting frames so a torn frame cannot sit on screen. IntelKit is
+  linked into the app as a local package. The Intel tab lists people,
+  places, events, and organizations, draws their links, fetches GDELT,
+  and imports CSV or JSON. Entities with coordinates are pins on the
+  globe.
   `render.yaml` is a free-tier blueprint; install steps are in
   `docs/IOS.md` (#1).

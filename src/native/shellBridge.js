@@ -290,6 +290,7 @@ function watchPicks(viewer) {
           detail: '',
           lat: null,
           lon: null,
+          intelId: entity.startsWith('intel:') ? entity.slice(6) : null,
         });
         return;
       }
@@ -306,12 +307,14 @@ function watchPicks(viewer) {
       } catch {
         /* A primitive without a cartesian position still has a name. */
       }
+      const rawId = typeof entity.id === 'string' ? entity.id : '';
       post({
         type: 'pick',
         title: String(entity.name || entity.id || 'Selection').slice(0, 140),
         detail: plainText(entity.description),
         lat,
         lon,
+        intelId: rawId.startsWith('intel:') ? rawId.slice(6) : null,
       });
     },
     { passive: true },
@@ -413,6 +416,34 @@ export function installShellBridge(application) {
       else clearApiBase();
       globalThis.location?.reload?.();
       return { ok: true };
+    }
+    if (op === 'pins') {
+      const doomed = [];
+      for (const entity of viewer.entities.values) {
+        if (String(entity.id || '').startsWith('intel:')) doomed.push(entity);
+      }
+      for (const entity of doomed) viewer.entities.remove(entity);
+      const pins = Array.isArray(command.pins) ? command.pins : [];
+      for (const pin of pins) {
+        const lat = Number(pin.lat);
+        const lon = Number(pin.lon);
+        const id = String(pin.id || '');
+        if (!id || !Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+        viewer.entities.add({
+          id: `intel:${id}`,
+          name: String(pin.name || id),
+          position: Cesium.Cartesian3.fromDegrees(lon, lat),
+          point: {
+            pixelSize: 12,
+            color: Cesium.Color.fromCssColorString('#5ac8fa'),
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          },
+        });
+      }
+      viewer.scene.requestRender();
+      return { ok: true, count: pins.length };
     }
     if (op === 'wake') {
       let frames = 0;

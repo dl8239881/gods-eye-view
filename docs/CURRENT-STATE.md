@@ -9,7 +9,9 @@ headers unless `GEV_TRUST_NATIVE_CLIENTS=1`. `render.yaml` is a free-tier
 blueprint; `GEV_ALLOWED_HOSTS` (and Render's `RENDER_EXTERNAL_HOSTNAME`) names
 the public host. Phone-width and coarse-pointer landscape screens use the
 existing bottom-sheet shell. The installed app hides that chrome and uses a
-SwiftUI tab bar (Globe, Layers, Cameras, Search, Settings) around the globe.
+SwiftUI tab bar (Globe, Layers, Cameras, Intel, Settings) around the globe.
+Place search sits on the Globe tab. IntelKit keeps people, places, events,
+and organizations on the device and pins the ones with coordinates.
 See docs/IOS.md.
 
 Docker Compose mounts the checkout with the shared SELinux `:z` label so

@@ -111,6 +111,7 @@ final class GlobeStore: ObservableObject {
     let handler = GevHandler()
 
     @Published var pick: EntityPick?
+    @Published var intelSheet: IntelSheetToken?
     @Published var groups: [NativeGroup] = []
     @Published var cameras: [TrafficCamera] = []
     @Published var places: [PlaceHit] = []
@@ -130,8 +131,14 @@ final class GlobeStore: ObservableObject {
         handler.onPick = { [weak self] body in
             Task { @MainActor in
                 guard let self else { return }
-                self.pick = EntityPick(body)
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                let intel = (body["intelId"] as? String)?
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                if !intel.isEmpty {
+                    self.intelSheet = IntelSheetToken(id: intel)
+                    return
+                }
+                self.pick = EntityPick(body)
             }
         }
         tick()
@@ -421,6 +428,7 @@ struct GlobeRepresentable: UIViewControllerRepresentable {
 struct GevRootView: View {
     @ObservedObject private var store = GlobeStore.shared
     @State private var tab = 0
+    @State private var searchOpen = false
 
     var body: some View {
         // The web view stays in the window on every tab. Removing it with the
@@ -430,6 +438,21 @@ struct GevRootView: View {
             GlobeRepresentable()
                 .ignoresSafeArea()
                 .allowsHitTesting(tab == 0)
+                .overlay(alignment: .topTrailing) {
+                    if tab == 0 {
+                        Button {
+                            searchOpen = true
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                                .font(.body.weight(.semibold))
+                                .padding(12)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
+                        .padding(.top, 8)
+                        .padding(.trailing, 16)
+                        .accessibilityLabel("Search")
+                    }
+                }
             if tab != 0 {
                 tabPage
                     .padding(.bottom, 49)
@@ -445,7 +468,16 @@ struct GevRootView: View {
         .sheet(item: $store.pick) { pick in
             EntitySheet(pick: pick, tab: $tab)
         }
-        .onAppear { store.startMaintenance() }
+        .sheet(isPresented: $searchOpen) {
+            SearchScreen(tab: $tab)
+        }
+        .sheet(item: $store.intelSheet) { token in
+            IntelDetailSheet(entityID: token.id, tab: $tab)
+        }
+        .onAppear {
+            store.startMaintenance()
+            IntelDirectory.shared.reload()
+        }
         .onChange(of: tab, perform: { selected in
             if selected == 0 {
                 Task { await store.wakeGlobe() }
@@ -458,7 +490,7 @@ struct GevRootView: View {
         switch tab {
         case 1: LayersScreen()
         case 2: CamerasScreen(tab: $tab)
-        case 3: SearchScreen(tab: $tab)
+        case 3: IntelScreen(tab: $tab)
         default: SettingsScreen()
         }
     }
@@ -468,7 +500,7 @@ struct GevRootView: View {
             tabButton(0, "Globe", "globe.americas")
             tabButton(1, "Layers", "square.3.layers.3d")
             tabButton(2, "Cameras", "video")
-            tabButton(3, "Search", "magnifyingglass")
+            tabButton(3, "Intel", "point.3.connected.trianglepath.dotted")
             tabButton(4, "Settings", "gearshape")
         }
         .padding(.top, 6)
@@ -688,6 +720,7 @@ struct CameraSheet: View {
 struct SearchScreen: View {
     @ObservedObject private var store = GlobeStore.shared
     @Binding var tab: Int
+    @Environment(\.dismiss) private var dismiss
     @State private var query = ""
 
     var body: some View {
@@ -697,6 +730,7 @@ struct SearchScreen: View {
                     Task {
                         await store.fly(lat: place.lat, lon: place.lon)
                         tab = 0
+                        dismiss()
                     }
                 } label: {
                     Text(place.name)
