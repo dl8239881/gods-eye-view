@@ -1,0 +1,18 @@
+{
+  "query_details": { "title": "Red Sea" },
+  "timeline": [
+    {
+      "series": "Volume Intensity",
+      "data": [
+        { "date": "20241115T150000Z", "value": 12, "norm": 4000 },
+        { "date": "20241115T151500Z", "value": "3", "norm": 100.5 }
+      ]
+    },
+    {
+      "series": "All Articles",
+      "data": [
+        { "date": "20241115T150000Z", "value": 4000 }
+      ]
+    }
+  ]
+}

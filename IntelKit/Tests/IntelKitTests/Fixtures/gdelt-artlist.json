@@ -1,0 +1,24 @@
+{
+  "articles": [
+    {
+      "url": "https://www.reuters.com/world/red-sea-2024",
+      "url_mobile": "https://www.reuters.com/world/red-sea-2024?mobile",
+      "title": "Ships reroute around the Red Sea",
+      "seendate": "20241115T153000Z",
+      "socialimage": "https://www.reuters.com/image.jpg",
+      "domain": "reuters.com",
+      "language": "English",
+      "sourcecountry": "United Kingdom"
+    },
+    {
+      "url": "https://example.com/empty-title",
+      "url_mobile": "",
+      "title": "",
+      "seendate": "20241115120000",
+      "socialimage": "",
+      "domain": "example.com",
+      "language": "English",
+      "sourcecountry": "United States"
+    }
+  ]
+}

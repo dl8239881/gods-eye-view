@@ -1,0 +1,4 @@
+id,kind,name,latitude,longitude,occurred_at,properties_json,Call Sign
+p-ada,person,"Lovelace, Ada",,,,"{""born"":1815}",
+v-1,ship,Ever Given,12.8,45.03,,,"H3RC"
+place-suez,location,Suez Canal,30.5,32.3,,,
