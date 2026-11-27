@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Aden, Yemen",
+        "count": "4",
+        "shareimage": "",
+        "html": "<a href=\"https://www.reuters.com/world/red-sea-2024\">Ships &amp; boats reroute</a><br/><a href=\"https://example.net/aden\">Port of Aden</a>"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [45.03, 12.8]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "No geometry", "count": 1 },
+      "geometry": null
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "A polygon", "count": 2 },
+      "geometry": { "type": "Polygon", "coordinates": [] }
+    }
+  ]
+}
