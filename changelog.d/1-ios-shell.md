@@ -18,6 +18,8 @@
   full-screen globe. Web chrome stays hidden there. Layers, camera
   stills, place search, UPLINK and quality go through `gevShell`, and a
   tap on a flight, satellite or camera opens a native sheet. Page pinch
-  is locked on the web view so the globe's own pinch keeps working.
+  is locked on the web view so the globe's own pinch keeps working. A
+  one-finger drag rotates the globe: the web view's pan recognizer is
+  disabled, so it cannot cancel that drag or bounce the page.
   `render.yaml` is a free-tier blueprint; install steps are in
   `docs/IOS.md` (#1).

@@ -420,12 +420,40 @@ export function createApplicationViewer({ container, creditContainer }) {
     if (native) {
       // Keep the clock painting live traffic, but not a full 60 frames when
       // the camera is still. A lost WebGL context is allowed to come back.
+      const controller = viewer.scene.screenSpaceCameraController;
+      controller.enableRotate = true;
+      controller.enableTilt = true;
+      controller.enableTranslate = true;
+      controller.enableZoom = true;
+      controller.inertiaSpin = 0.9;
+      controller.inertiaTranslate = 0.9;
+      controller.inertiaZoom = 0.8;
       viewer.scene.requestRenderMode = true;
       viewer.scene.maximumRenderTimeChange = 1 / 20;
       viewer.camera.percentageChanged = 0.01;
       viewer.camera.changed.addEventListener(() =>
         viewer.scene.requestRender(),
       );
+      // A one-finger drag and the coast after it must keep drawing. Otherwise
+      // requestRenderMode holds the last frame and the turn looks stuck.
+      const drags = new Set();
+      let coastUntil = 0;
+      viewer.scene.preUpdate.addEventListener(() => {
+        if (drags.size > 0 || performance.now() < coastUntil)
+          viewer.scene.requestRender();
+      });
+      const beginDrag = (event) => {
+        if (event.pointerType === 'mouse') return;
+        drags.add(event.pointerId);
+        viewer.scene.requestRender();
+      };
+      const endDrag = (event) => {
+        if (event.pointerType === 'mouse') return;
+        const turning = drags.size > 0;
+        drags.delete(event.pointerId);
+        if (turning && drags.size === 0) coastUntil = performance.now() + 900;
+        viewer.scene.requestRender();
+      };
       viewer.resolutionScale = Math.min(
         1,
         2 / Math.max(1, globalThis.devicePixelRatio || 1),
@@ -437,6 +465,9 @@ export function createApplicationViewer({ container, creditContainer }) {
         globe.tileCacheSize = 80;
       }
       const canvas = viewer.canvas;
+      canvas?.addEventListener?.('pointerdown', beginDrag);
+      canvas?.addEventListener?.('pointerup', endDrag);
+      canvas?.addEventListener?.('pointercancel', endDrag);
       canvas?.addEventListener?.(
         'webglcontextlost',
         (event) => event.preventDefault(),

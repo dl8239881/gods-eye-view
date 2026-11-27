@@ -92,7 +92,7 @@ The installed app is a SwiftUI tab bar around the globe:
 
 | Tab | What it does |
 | --- | --- |
-| Globe | Full-screen Cesium view. Pinch, rotate and tilt stay on the globe. A tap on a flight, satellite or camera opens a short native sheet. |
+| Globe | Full-screen Cesium view. One finger turns the globe and keeps its coast. Pinch zooms. The page itself does not scroll. A tap on a flight, satellite or camera opens a short native sheet. |
 | Layers | Native toggles in the same groups as the web panel, plus a layer's own chips. Each row reads OK, Unavailable, or Needs server. |
 | Cameras | Keyless NSW, TfL and Caltrans stills. A row opens the frame and can fly the globe there. |
 | Search | Place search. A result flies the globe and returns to the Globe tab. |

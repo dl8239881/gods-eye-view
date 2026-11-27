@@ -16,6 +16,27 @@ final class GevHandler: NSObject, WKScriptMessageHandler {
     }
 }
 
+/// Puts a web-view scroll offset back to zero without re-entering forever.
+final class ScrollOffsetPin: NSObject {
+    private var observation: NSKeyValueObservation?
+    private var pinning = false
+
+    func pin(_ scroll: UIScrollView) {
+        if scroll.contentOffset != .zero {
+            pinning = true
+            scroll.setContentOffset(.zero, animated: false)
+            pinning = false
+        }
+        guard observation == nil else { return }
+        observation = scroll.observe(\.contentOffset, options: [.new]) { [weak self] scroll, _ in
+            guard let self, !self.pinning, scroll.contentOffset != .zero else { return }
+            self.pinning = true
+            scroll.setContentOffset(.zero, animated: false)
+            self.pinning = false
+        }
+    }
+}
+
 enum GevCallError: LocalizedError {
     case notReady
     case badJSON
@@ -133,10 +154,13 @@ final class GlobeStore: ObservableObject {
             webView.backgroundColor = UIColor(red: 10 / 255, green: 10 / 255, blue: 15 / 255, alpha: 1)
             webView.scrollView.backgroundColor = webView.backgroundColor
         }
-        lock(webView.scrollView)
+        lock(webView)
     }
 
-    private func lock(_ scroll: UIScrollView) {
+    private let offsetPin = ScrollOffsetPin()
+
+    private func lock(_ webView: WKWebView) {
+        let scroll = webView.scrollView
         scroll.isScrollEnabled = false
         scroll.bounces = false
         scroll.alwaysBounceVertical = false
@@ -144,21 +168,28 @@ final class GlobeStore: ObservableObject {
         scroll.bouncesZoom = false
         scroll.minimumZoomScale = 1
         scroll.maximumZoomScale = 1
-        scroll.zoomScale = 1
-        scroll.pinchGestureRecognizer?.isEnabled = false
+        if scroll.zoomScale != 1 { scroll.zoomScale = 1 }
         scroll.contentInsetAdjustmentBehavior = .never
         scroll.contentInset = .zero
+        scroll.scrollIndicatorInsets = .zero
+        scroll.showsVerticalScrollIndicator = false
+        scroll.showsHorizontalScrollIndicator = false
         scroll.delaysContentTouches = false
         scroll.canCancelContentTouches = false
-        scroll.panGestureRecognizer.minimumNumberOfTouches = 10
+        // Leaving the pan recognizer enabled, even with a high touch minimum,
+        // lets it fail a one-finger drag and cancel the pointer Cesium is using.
+        scroll.panGestureRecognizer.isEnabled = false
+        scroll.pinchGestureRecognizer?.isEnabled = false
         for recognizer in scroll.gestureRecognizers ?? [] {
-            if recognizer is UIPinchGestureRecognizer {
+            if recognizer is UIPanGestureRecognizer || recognizer is UIPinchGestureRecognizer {
                 recognizer.isEnabled = false
             }
             if let tap = recognizer as? UITapGestureRecognizer, tap.numberOfTapsRequired > 1 {
                 tap.isEnabled = false
             }
         }
+        offsetPin.pin(scroll)
+        webView.isMultipleTouchEnabled = true
     }
 
     func callWhenReady(_ command: [String: Any], tries: Int = 40) async throws -> Any? {
@@ -384,8 +415,7 @@ struct GevRootView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            GlobeRepresentable()
-                .ignoresSafeArea()
+            globeTab
                 .tabItem { Label("Globe", systemImage: "globe.americas") }
                 .tag(0)
             LayersScreen()
@@ -406,6 +436,15 @@ struct GevRootView: View {
             EntitySheet(pick: pick, tab: $tab)
         }
         .onAppear { store.startMaintenance() }
+    }
+
+    private var globeTab: some View {
+        // The globe is not in a ScrollView. Lists on the other tabs keep their own scrolling.
+        let globe = GlobeRepresentable().ignoresSafeArea()
+        if #available(iOS 16.0, *) {
+            return AnyView(globe.scrollDisabled(true))
+        }
+        return AnyView(globe)
     }
 }
 
